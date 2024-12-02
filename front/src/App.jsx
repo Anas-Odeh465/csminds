@@ -7,10 +7,12 @@ import CoursesPage from './pages/courses';
 import BecomeInstructor from './components/joinus/joinUs';
 
 function App() {
+  sdsdf
+  sdfsdf
+  sdfsdf
   return (
-    <Router>
+    <Router >
     <div className="flex flex-col min-h-screen">
-      {/* Header / Navigation */}
       <NavigationBar />
 
       {/* Main Content */}
