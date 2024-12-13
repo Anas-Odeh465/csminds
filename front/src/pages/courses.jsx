@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Search, BookOpen } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const CourseCard = ({ title, description, image, url, duration, level, price }) => {
+const CourseCard = ({ title, description, image, url, duration, level, price, id }) => {
+  const navigate = useNavigate();
+
   const renderImage = () => {
     switch (image) {
       case 'python':
@@ -82,8 +84,11 @@ const CourseCard = ({ title, description, image, url, duration, level, price }) 
             ${price}
           </span>
         </div>
-        <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-all duration-300">
-          Enroll Now
+        <button 
+          onClick={() => navigate(`/courses/${id}`)}
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-all duration-300"
+        >
+          View Course
         </button>
       </div>
     </div>
@@ -107,6 +112,7 @@ const CoursesPage = () => {
 
   const allCourses = [
     {
+      id: 'python-beginners',
       title: 'Python for Beginners',
       description: 'Start your programming journey with Python fundamentals',
       image: 'python',
@@ -117,6 +123,7 @@ const CoursesPage = () => {
       url: '#'
     },
     {
+      id: 'advanced-web-dev',
       title: 'Advanced Web Development',
       description: 'Master modern web development with React and Node.js',
       image: 'react',
@@ -127,6 +134,7 @@ const CoursesPage = () => {
       url: '#'
     },
     {
+      id: 'flutter-mobile',
       title: 'Mobile App Development with Flutter',
       description: 'Build cross-platform mobile apps with Flutter',
       image: 'flutter',
@@ -137,6 +145,7 @@ const CoursesPage = () => {
       url: '#'
     },
     {
+      id: 'java-enterprise',
       title: 'Java Enterprise Development',
       description: 'Learn enterprise Java development with Spring Boot',
       image: 'java',
@@ -147,6 +156,7 @@ const CoursesPage = () => {
       url: '#'
     },
     {
+      id: 'unity-game-dev',
       title: 'Unity Game Development',
       description: 'Create 3D games with Unity and C#',
       image: 'unity',
@@ -157,6 +167,7 @@ const CoursesPage = () => {
       url: '#'
     },
     {
+      id: 'angular-frontend',
       title: 'Frontend Development with Angular',
       description: 'Build modern web applications with Angular',
       image: 'angular',
@@ -167,6 +178,7 @@ const CoursesPage = () => {
       url: '#'
     },
     {
+      id: 'nodejs-backend',
       title: 'Node.js Backend Development',
       description: 'Create scalable backend services with Node.js',
       image: 'nodejs',
@@ -177,6 +189,7 @@ const CoursesPage = () => {
       url: '#'
     },
     {
+      id: 'html-css-basics',
       title: 'HTML & CSS Fundamentals',
       description: 'Learn the building blocks of web development',
       image: 'html',
@@ -289,8 +302,8 @@ const CoursesPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredCourses.map((course, index) => (
-              <CourseCard key={index} {...course} />
+            {filteredCourses.map((course) => (
+              <CourseCard key={course.id} {...course} />
             ))}
           </div>
         )}
