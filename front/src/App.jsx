@@ -5,7 +5,7 @@ import Footer from './components/Layout/footer';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import CoursesPage from './pages/courses';
 import BecomeInstructor from './components/joinus/joinUs';
-
+import CourseDetailsPage from './pages/courseDetails';
 function App() {
   return (
     <Router>
@@ -19,7 +19,7 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/courses" element={<CoursesPage />} />
       <Route path="/become-instructor" element={<BecomeInstructor />} />
-       
+      <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
 
 
       </Routes>
