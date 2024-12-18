@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import img from '../../assets/loggo1.png'
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import img from '../../assets/5.svg'
 const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -92,13 +92,19 @@ const NavigationBar = () => {
                 <ShoppingCart className="w-5 h-5" />
               </a>
               <a href="#" className="hover:text-gray-600">AI Minds</a>
+             
               <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2">
+              <Link to="/login">
                 <button className="px-6 py-2 rounded-full border border-gray-800 hover:bg-gray-100">
                   Login
                 </button>
+                </Link>
+
+                <Link to="/login">
                 <button className="px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700">
                   Sign Up
                 </button>
+                </Link>
               </div>
             </div>
           </div>
