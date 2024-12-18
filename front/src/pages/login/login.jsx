@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import validation_signup from './signup-validation';
 import axios from "axios";
 import { validation_login, validate_only_email } from './login-validation';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation  } from "react-router-dom";
+import googleLogo from "../../assets/google.png";
 
-const AuthPage = () => {
-  const [activeTab, setActiveTab] = useState('login');
-
+const AuthPage = ({state}) => {
+  
+  const location = useLocation();
+  const state_button = location.state;
+  const [activeTab, setActiveTab] = useState(state_button);
+  
   /*
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
@@ -81,6 +85,7 @@ const AuthPage = () => {
                 if (res.data === "Email already exists"){
                     alert(res.data);
                     navigate('/login');
+                    location.reload(true);
                 }
                 else if (res.data === "User registered successfully!"){
                     alert("One more step: verify your email account");
@@ -103,6 +108,11 @@ const AuthPage = () => {
     }
     console.log('Signup attempted:', valuesSignUp.email);
   };
+
+  // same for login and sign up
+  function loginWithGoogle() {
+    window.location.href = 'http://localhost:3307/auth/google';
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4 py-12 mt-20">
@@ -175,6 +185,10 @@ const AuthPage = () => {
                 >
                   Login
                 </button>
+                <div className="google-signin-btn" onClick={loginWithGoogle}>
+                  <img src={googleLogo} alt="Google logo" />
+                      <span>Login with Google</span>
+                </div>
                 <div className="text-center">
                   <a href="#" className="text-sm text-blue-600 hover:underline transition-colors">
                     Forgot Password?
@@ -183,64 +197,113 @@ const AuthPage = () => {
               </form>
             ) : (
               <form onSubmit={handleSignup} className="space-y-6">
-                <div className="space-y-2">
-                  <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
-                    Email Address
-                  </label>
-                  <input 
-                    id="signup-email"
-                    type="email"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
-                    name='email'
-                    onChange={handelchangeValue_signup}
-                    placeholder="Enter your email"
-                  />
-                  {error_2.email && <span className="text-danger">{error.email}</span>}
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <input 
-                    id="signup-password"
-                    type="password"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
-                    name='password'
-                    onChange={handelchangeValue_signup}
-                    placeholder="Create a password"
-                  />
-                  {error_2.password && <span className="text-danger">{error_2.password}</span>}
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
-                    Confirm Password
-                  </label>
-                  <input 
-                    id="confirm-password"
-                    type="password"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
-                  />
+                  {/* First Name Input */}
+                  <div className="flex space-x-4">
+                  <div className="flex-1 space-y-2">
+                    <label htmlFor="signup-firstname" className="block text-sm font-medium text-gray-700">
+                      First Name
+                    </label>
+                    <input
+                      id="signup-firstname"
+                      type="text"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
+                      name="firstname"
+                      onChange={handelchangeValue_signup}
+                      placeholder="First Name"
+                    />
+                    {error_2.firstname && <span className="text-danger">{error_2.firstName}</span>}
+                  </div>
 
-                </div>
-                <button 
-                  type="submit"
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
-                >
-                  Create Account
-                </button>
-                <div className="text-center text-sm text-gray-600">
-                  By signing up, you agree to our 
-                  <a href="#" className="ml-1 text-blue-600 hover:underline transition-colors">
-                    Terms of Service
-                  </a>
-                </div>
-              </form>
+                  {/* Last Name Input */}
+                  <div className="flex-1 space-y-2">
+                    <label htmlFor="signup-lastname" className="block text-sm font-medium text-gray-700">
+                      Last Name
+                    </label>
+                    <input
+                      id="signup-lastname"
+                      type="text"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
+                      name="lastname"
+                      onChange={handelchangeValue_signup}
+                      placeholder="Last Name"
+                    />
+                    {error_2.lastName && <span className="text-danger">{error_2.lastName}</span>}
+                  </div>
+                  </div>
+
+                  {/* Email Input */}
+                  <div className="space-y-2">
+                    <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
+                      Email Address
+                    </label>
+                    <input
+                      id="signup-email"
+                      type="email"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
+                      name="email"
+                      onChange={handelchangeValue_signup}
+                      placeholder="Enter your email"
+                    />
+                    {error_2.email && <span className="text-danger">{error.email}</span>}
+                  </div>
+
+                  {/* Password Input */}
+                  <div className="space-y-2">
+                    <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
+                      Password
+                    </label>
+                    <input
+                      id="signup-password"
+                      type="password"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
+                      name="password"
+                      onChange={handelchangeValue_signup}
+                      placeholder="Create a password"
+                    />
+                    {error_2.password && <span className="text-danger">{error_2.password}</span>}
+                  </div>
+
+                  {/* Confirm Password Input */}
+                  <div className="space-y-2">
+                    <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
+                      Confirm Password
+                    </label>
+                    <input
+                      id="confirm-password"
+                      type="password"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your password"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                  >
+                    Create Account
+                  </button>
+
+                  <div className="google-signin-btn" onClick={loginWithGoogle}>
+                    <img src={googleLogo} alt="Google logo" />
+                        <span>Sign up with Google</span>
+                  </div>
+
+                  {/* Terms of Service */}
+                  <div className="text-center text-sm text-gray-600">
+                    By signing up, you agree to our
+                    <a href="#" className="ml-1 text-blue-600 hover:underline transition-colors">
+                      Terms of Service
+                    </a>
+                  </div>
+                </form>
             )}
           </div>
         </div>

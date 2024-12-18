@@ -277,13 +277,13 @@ const NavigationBar = () => {
               ) : (
                 <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2">
                   <button
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate('/login', {state: 'login'})}
                     className="px-6 py-2 rounded-full border border-gray-800 hover:bg-gray-100"
                   >
                     Login
                   </button>
                   <button
-                    onClick={() => navigate('/create-account')}
+                    onClick={() => navigate('/login', {state: 'signup'})}
                     className="px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700"
                     id="Sign-Up"
                   >
