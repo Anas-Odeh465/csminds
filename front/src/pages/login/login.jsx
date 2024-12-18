@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import validation_signup from './signup-validation';
+import { validation_login } from './login-validation';
 
 const AuthPage = () => {
   const [activeTab, setActiveTab] = useState('login');
