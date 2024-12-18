@@ -1,29 +1,107 @@
 import React, { useState } from 'react';
 import validation_signup from './signup-validation';
-import { validation_login } from './login-validation';
+import axios from "axios";
+import { validation_login, validate_only_email } from './login-validation';
+import { useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
   const [activeTab, setActiveTab] = useState('login');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [signupEmail, setSignupEmail] = useState('');
-  const [signupPassword, setSignupPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
+  /*
+    const [loginEmail, setLoginEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [signupEmail, setSignupEmail] = useState('');
+    const [signupPassword, setSignupPassword] = useState('');
+  */
+
+  const navigate = useNavigate();
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState({});
+  const [error_2, setError_2] = useState({});
+
+  // signup values
+  const [valuesSignUp, setValuesSignUp] = useState({
+    firstname:'',
+    lastname:'',
+    email:'',
+    password:''
+  });
+
+  // login values
+  const [valuesLogin, setValuesLogin] = useState({
+    email:'',
+    password:''
+  });
+
+  // handel Login values
+  const handelchangeValue_login = (event) => {
+    setValuesLogin(prev => ({ ...prev, [event.target.name]: event.target.value }));
+  }
+
+  // handel SignUp values
+  const handelchangeValue_signup = (event) => {
+    setValuesSignUp(prev => ({ ...prev, [event.target.name]: event.target.value }));
+  }
+
+  // handel login submit
   const handleLogin = (e) => {
     e.preventDefault();
-    // Implement login logic
-    console.log('Login attempted:', loginEmail);
+    const err = validation_login(valuesLogin);
+        setError(err);
+        
+        axios.defaults.withCredentials = true;
+        if (err.email === "" && err.password === "") {
+            axios.post('http://localhost:3307/login', valuesLogin)
+                .then(res => {
+                    if (res.data === "Invalid email or password") {
+                        alert(res.data); 
+                    } else {
+                        alert(res.data);
+                        navigate('/');
+                        location.reload(true);
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+    console.log('Login attempted:', valuesLogin.email);
   };
 
+  // handel signup submit
   const handleSignup = (e) => {
     e.preventDefault();
-    if (signupPassword !== confirmPassword) {
-      alert("Passwords don't match");
+    if (valuesSignUp.password !== confirmPassword) {
+      alert("Passwords not match");
       return;
     }
-    // Implement signup logic
-    console.log('Signup attempted:', signupEmail);
+    else{ 
+        const err = validation_signup(valuesSignUp);
+        setError_2(err);
+        if(err.firstname === "" && err.lastname === "" && err.email === "" && err.password === "" ){
+            axios.post('http://localhost:3307/create-account', valuesSignUp).then(res => {
+                if (res.data === "Email already exists"){
+                    alert(res.data);
+                    navigate('/login');
+                }
+                else if (res.data === "User registered successfully!"){
+                    alert("One more step: verify your email account");
+                    axios.post('http://localhost:3307/verify-email-account', valuesSignUp)
+                    .then(res => {
+                        if(res.data === "Verification sent to " + valuesSignUp.email){
+                            alert(res.data, "->"+ valuesSignUp.email);
+                            navigate('/Aemailverify', { state: {email: valuesSignUp.email} });
+                        }
+                        else{
+                            alert(res.data);
+                        }
+                    }).catch(err => {console.log(err)});
+                }
+                else{
+                    alert(res.data);
+                }
+            }).catch(err => console.log(err));  
+        }
+    }
+    console.log('Signup attempted:', valuesSignUp.email);
   };
 
   return (
@@ -60,7 +138,7 @@ const AuthPage = () => {
           {/* Form Container */}
           <div className="p-8 space-y-6">
             {activeTab === 'login' ? (
-              <form onSubmit={handleLogin} className="space-y-6">
+              <form onSubmit={handleLogin} method='POST' className="space-y-6">
                 <div className="space-y-2">
                   <label htmlFor="login-email" className="block text-sm font-medium text-gray-700">
                     Email Address
@@ -70,10 +148,11 @@ const AuthPage = () => {
                     type="email"
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
+                    name='email'
+                    onChange={handelchangeValue_login}
                     placeholder="Enter your email"
                   />
+                  {error.email && <span className="text-danger">{error.email}</span>}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
@@ -84,10 +163,11 @@ const AuthPage = () => {
                     type="password"
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
+                    name='password'
+                    onChange={handelchangeValue_login}
                     placeholder="Enter your password"
                   />
+                  {error.password && <span className="text-danger">{error.password}</span>}
                 </div>
                 <button 
                   type="submit"
@@ -112,10 +192,11 @@ const AuthPage = () => {
                     type="email"
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
-                    value={signupEmail}
-                    onChange={(e) => setSignupEmail(e.target.value)}
+                    name='email'
+                    onChange={handelchangeValue_signup}
                     placeholder="Enter your email"
                   />
+                  {error_2.email && <span className="text-danger">{error.email}</span>}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
@@ -126,10 +207,11 @@ const AuthPage = () => {
                     type="password"
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 ease-in-out"
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
+                    name='password'
+                    onChange={handelchangeValue_signup}
                     placeholder="Create a password"
                   />
+                  {error_2.password && <span className="text-danger">{error_2.password}</span>}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
@@ -144,6 +226,7 @@ const AuthPage = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm your password"
                   />
+
                 </div>
                 <button 
                   type="submit"

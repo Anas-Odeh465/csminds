@@ -199,19 +199,98 @@ const NavigationBar = () => {
               </a>
               <a href="#" className="hover:text-gray-600">AI Minds</a>
              
-              <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2">
-              <Link to="/login">
-                <button className="px-6 py-2 rounded-full border border-gray-800 hover:bg-gray-100">
-                  Login
-                </button>
-                </Link>
+              {auth ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setDrop(!drop)} 
+                    className="flex items-center space-x-1 hover:text-gray-600"
+                  >
+                     
+                     <UserAvatar firstName={firstname} />
+                      
+                    <span style={{paddingLeft: '10px'}}>{firstname} {lastname}</span>
+                  </button>
+                  {drop && (
+                     
+                    <div className="absolute top-full right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border">
+                      {userProfileOption.map((option, index) => (
+                      <button key={index}
+                       onClick={() => handleProfileClicked(option)}
+                       className="w-full text-left px-4 py-2 hover:bg-gray-50">
 
-                <Link to="/login">
-                <button className="px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700">
-                  Sign Up
-                </button>
-                </Link>
-              </div>
+                        <div className="flex items-center">
+                          <UserAvatarSmall firstName={firstname} className="flex-shrink-0" />
+                          <p className="ml-1">{option}</p>
+                        </div>
+                        <p className="text-gray-500 text-xs mt-1">{email}</p>
+                     </button>
+                     ))} 
+                      <hr />
+                      {options_1.map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleProfileClicked(option)}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-50"
+                        >
+                          {option}
+                          
+                        </button>
+                        
+                      ))} <hr />
+                      {options_2.map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleProfileClicked(option)}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-50"
+                        >
+                          {option}
+                          
+                        </button>
+                        
+                      ))}
+                      <hr />
+                      {options_3.map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleProfileClicked(option)}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-50"
+                        >
+                          {option}
+                          
+                        </button>
+                        
+                      ))}<hr />
+                      {options_4.map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleProfileClicked(option)}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-50"
+                        >
+                          {option}
+                          
+                        </button>
+                        
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2">
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="px-6 py-2 rounded-full border border-gray-800 hover:bg-gray-100"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => navigate('/create-account')}
+                    className="px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700"
+                    id="Sign-Up"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
