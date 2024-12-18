@@ -32,7 +32,7 @@ const NavigationBar = () => {
                 alt="CS Minds Logo"
                 className="w-[70px] h-[55px] object-contain mr-2"
               />
-              <span className="font-bold">CS Minds</span>
+              <span className="font-bold text-2xl text-blue-500">CS Minds</span>
             </a>
           </div>
 
