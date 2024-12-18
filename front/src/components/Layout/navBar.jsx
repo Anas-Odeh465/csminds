@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import img from '../../assets/5.svg'
+import axios from 'axios';
+import img from '../../assets/5.svg';
+import { UserAvatar, UserAvatarSmall }  from '../Profile/userAvat';
+
 const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [auth, setAuth] = useState(false);
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
+  const [email, setEmail] = useState('');
+  const [drop, setDrop] = useState(false);
   const navigate = useNavigate();
 
   const categories = [
@@ -20,6 +28,104 @@ const NavigationBar = () => {
     setIsDropdownOpen(false);
     navigate(`/courses?category=${encodeURIComponent(category)}`);
   };
+
+  axios.defaults.withCredentials = true;
+
+  // when the user logged in 
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      try {
+        const res1 = await axios.get('http://localhost:3307');
+        
+        if (res1.data && res1.data.FirstName) {
+          setAuth(true);
+          setFirstname(res1.data.FirstName);
+          setLastname(res1.data.LastName);
+          setEmail(res1.data.Email);
+        } else {
+          
+          const res2 = await axios.get('http://localhost:3307/api/users/to');
+          if (res2.data && res2.data.user) {
+            setAuth(true);
+            setFirstname(res2.data.user.given_name);
+            setLastname(res2.data.user.family_name);
+            setEmail(res2.data.user.email);
+          } else {
+            setAuth(false);
+          }
+          
+        }
+      } catch (err) {
+        console.error("Error fetching auth status:", err);
+        setAuth(false);
+      }
+    };
+  
+    fetchAuthStatus();
+  }, [auth]);
+
+  // on logout
+  const handleLogout = () => {
+    axios.get('http://localhost:3307/logout')
+      .then(() => {
+        navigate('/login');
+        location.reload(true);
+      })
+      .catch(err => console.log('Error during logout:', err));
+  };
+
+  // user options after login
+  const options_1 = [
+    "My learning",
+    "My cart",
+    "Wishlist",
+    "Instructor dashboard"
+  ];
+
+  const options_2 = [
+    "Account settings",
+    "Payment methods",
+    "Purchase history"
+  ];
+
+  const userProfileOption = [
+    firstname + " "+  lastname
+  ];
+
+  const options_3 = [
+    "Public profile",
+    "Edit profile"
+  ];
+
+  const options_4 = [
+    "Logout"
+  ];
+
+  // handel user profile option with operation...
+  const handleProfileClicked = (option) => {
+    if (option === firstname + " "+  lastname) {
+      setDrop(false); 
+      navigate('/profileView');
+    } else if (option === "Logout") {
+      handleLogout();
+      setDrop(false); 
+    }else if (option === "Public profile") {
+      setDrop(false); 
+      navigate(`/profileView`);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-20 border-b bg-gray-50 z-50">
