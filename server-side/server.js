@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const cookie = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
-const passport = require('./google-auth');
+const passport = require('./google-oauth');
 require('dotenv').config();
 
 
