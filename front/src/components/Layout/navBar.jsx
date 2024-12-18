@@ -1,69 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Router, ShoppingCart } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingCart } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import img from '../../assets/loggo1.png';
-import axios from 'axios';
-import { Client } from 'appwrite';
-import { UserAvatar, UserAvatarSmall }  from '/Profile/userAvat';
-
+import img from '../../assets/5.svg'
 const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [auth, setAuth] = useState(false);
-  const [message, setMessage] = useState('');
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
-  const [to, setTo] = useState('');
   const navigate = useNavigate();
-
-  axios.defaults.withCredentials = true;
-
-  useEffect(() => {
-    const fetchAuthStatus = async () => {
-      try {
-        const res1 = await axios.get('http://localhost:3307');
-        
-        if (res1.data && res1.data.FirstName) {
-          setAuth(true);
-          setFirstname(res1.data.FirstName);
-          setLastname(res1.data.LastName);
-          setEmail(res1.data.Email);
-        } else {
-          
-          const res2 = await axios.get('http://localhost:3307/api/users/to');
-          if (res2.data && res2.data.user) {
-            setAuth(true);
-            setFirstname(res2.data.user.given_name);
-            setLastname(res2.data.user.family_name);
-            setEmail(res2.data.user.email);
-          } else {
-            setAuth(false);
-          }
-          
-        }
-      } catch (err) {
-        console.error("Error fetching auth status:", err);
-        setAuth(false);
-      }
-    };
-  
-    fetchAuthStatus();
-  }, [auth]); 
-
-  
-
-  const handleLogout = () => {
-    axios.get('http://localhost:3307/logout')
-      .then(() => {
-        navigate('/login');
-        location.reload(true);
-      })
-      .catch(err => console.log('Error during logout:', err));
-  };
-
-  const client = new Client();
-  client.setProject('674b6571003bfbd60dc5');
 
   const categories = [
     "Web Development",
@@ -79,48 +21,6 @@ const NavigationBar = () => {
     navigate(`/courses?category=${encodeURIComponent(category)}`);
   };
 
-  
-  const options_1 = [
-    "My learning",
-    "My cart",
-    "Wishlist",
-    "Instructor dashboard"
-  ];
-
-  const options_2 = [
-    "Account settings",
-    "Payment methods",
-    "Purchase history"
-  ];
-
-  const userProfileOption = [
-    firstname + " "+  lastname
-  ];
-
-  const options_3 = [
-    "Public profile",
-    "Edit profile"
-  ];
-
-  const options_4 = [
-    "Logout"
-  ];
-
-  const [drop, setDrop] = useState(false);
-
-  const handleProfileClicked = (option) => {
-    if (option === firstname + " "+  lastname) {
-      setDrop(false); 
-      navigate('/profileView');
-    } else if (option === "Logout") {
-      handleLogout();
-      setDrop(false); 
-    }else if (option === "Public profile") {
-      setDrop(false); 
-      navigate(`/profileView`);
-    }
-  };
-    
   return (
     <nav className="fixed top-0 left-0 right-0 h-20 border-b bg-gray-50 z-50">
       <div className="container mx-auto px-4 h-full">
@@ -132,7 +32,7 @@ const NavigationBar = () => {
                 alt="CS Minds Logo"
                 className="w-[70px] h-[55px] object-contain mr-2"
               />
-              <span className="font-bold" id='font-bold'>CS Minds</span>
+              <span className="font-bold">CS Minds</span>
             </a>
           </div>
 
@@ -183,7 +83,6 @@ const NavigationBar = () => {
                   type="search"
                   placeholder="Search anything..."
                   className="w-full px-4 py-2 rounded-full border focus:outline-none focus:ring-2 focus:ring-gray-200"
-                  id='searchbar'
                 />
               </div>
             </div>
@@ -192,101 +91,21 @@ const NavigationBar = () => {
               <a href="#" className="hover:text-gray-600">
                 <ShoppingCart className="w-5 h-5" />
               </a>
-              <a href="http://localhost/AI_Chat_Page/AIminds_Chat.php" className="hover:text-gray-600">AI Minds</a>
+              <a href="#" className="hover:text-gray-600">AI Minds</a>
+             
+              <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2">
+              <Link to="/login">
+                <button className="px-6 py-2 rounded-full border border-gray-800 hover:bg-gray-100">
+                  Login
+                </button>
+                </Link>
 
-              {auth ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setDrop(!drop)} 
-                    className="flex items-center space-x-1 hover:text-gray-600"
-                  >
-                     
-                     <UserAvatar firstName={firstname} />
-                      
-                    <span style={{paddingLeft: '10px'}}>{firstname} {to} {lastname}</span>
-                  </button>
-                  {drop && (
-                     
-                    <div className="absolute top-full right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border">
-                      {userProfileOption.map((option, index) => (
-                      <button key={index}
-                       onClick={() => handleProfileClicked(option)}
-                       className="w-full text-left px-4 py-2 hover:bg-gray-50">
-
-                        <div className="flex items-center">
-                          <UserAvatarSmall firstName={firstname} className="flex-shrink-0" />
-                          <p className="ml-1">{option}</p>
-                        </div>
-                        <p className="text-gray-500 text-xs mt-1">{email}</p>
-                     </button>
-                     ))} 
-                      <hr />
-                      {options_1.map((option, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleProfileClicked(option)}
-                          className="block w-full text-left px-4 py-2 hover:bg-gray-50"
-                        >
-                          {option}
-                          
-                        </button>
-                        
-                      ))} <hr />
-                      {options_2.map((option, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleProfileClicked(option)}
-                          className="block w-full text-left px-4 py-2 hover:bg-gray-50"
-                        >
-                          {option}
-                          
-                        </button>
-                        
-                      ))}
-                      <hr />
-                      {options_3.map((option, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleProfileClicked(option)}
-                          className="block w-full text-left px-4 py-2 hover:bg-gray-50"
-                        >
-                          {option}
-                          
-                        </button>
-                        
-                      ))}<hr />
-                      {options_4.map((option, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleProfileClicked(option)}
-                          className="block w-full text-left px-4 py-2 hover:bg-gray-50"
-                        >
-                          {option}
-                          
-                        </button>
-                        
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2">
-                  <button
-                    onClick={() => navigate('/login')}
-                    className="px-6 py-2 rounded-full border border-gray-800 hover:bg-gray-100"
-                  >
-                    Login
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/create-account')}
-                    className="px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700"
-                    id="Sign-Up"
-                  >
-                    Sign Up
-                  </button>
-                </div>
-              )}
+                <Link to="/login">
+                <button className="px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700">
+                  Sign Up
+                </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

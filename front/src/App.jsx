@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import CoursesPage from './pages/courses';
 import BecomeInstructor from './components/joinus/joinUs';
 import CourseDetailsPage from './pages/courseDetails';
+import AuthPage from './pages/login/login';
 function App() {
   return (
     <Router>
@@ -20,6 +21,7 @@ function App() {
       <Route path="/courses" element={<CoursesPage />} />
       <Route path="/become-instructor" element={<BecomeInstructor />} />
       <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
+      <Route path="/login" element={<AuthPage />} />
 
 
       </Routes>
