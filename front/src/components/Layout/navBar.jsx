@@ -4,7 +4,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import img from '../../assets/loggo1.png';
 import axios from 'axios';
 import { Client } from 'appwrite';
-import { UserAvatar, UserAvatarSmall }  from '../Profile/userAvat';
+import { UserAvatar, UserAvatarSmall }  from '/Profile/userAvat';
 
 const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
