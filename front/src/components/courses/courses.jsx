@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 const CourseCard = ({ title, description, image, url }) => {
+  const navigate = useNavigate();
+
   const renderImage = () => {
     switch (image) {
       case 'python':
@@ -68,7 +71,9 @@ const CourseCard = ({ title, description, image, url }) => {
           <p className="text-gray-600 mb-4 text-center">{description}</p>
         </div>
         <div className="w-full flex justify-center mt-auto">
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5">
+          <button 
+         
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5">
             Enroll Now
           </button>
         </div>
