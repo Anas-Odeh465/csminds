@@ -111,7 +111,11 @@ const NavigationBar = () => {
       setDrop(false); 
     }else if (option === "Public profile") {
       setDrop(false); 
-      navigate(`/profileView`);
+      navigate(`/profilpage`);
+    }
+    else if (option === "Edit profile"){
+      setDrop(false);
+      navigate('/')
     }
   };
 

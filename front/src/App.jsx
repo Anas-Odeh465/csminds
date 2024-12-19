@@ -11,6 +11,7 @@ import { UserAvatar, UserAvatarSmall } from './components/Profile/userAvat';
 import EmailVerification from './pages/login/forgot-password';
 import ResetPassword from './pages/login/reset-password';
 import AccountEmailVerification from './pages/login/verify-email-signup';
+import ProfilePage from './components/profile/profilePage';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path="/passCode" element={<EmailVerification />} />
           <Route path="/resetpass" element={<ResetPassword />} />
           <Route path="/Aemailverify" element={<AccountEmailVerification />} />
+          <Route path="/profilpage" element={<ProfilePage />} />
 
         </Routes>
       </main>
