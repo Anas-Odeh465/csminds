@@ -197,7 +197,7 @@ const NavigationBar = () => {
               <a href="#" className="hover:text-gray-600">
                 <ShoppingCart className="w-5 h-5" />
               </a>
-              <a href="#" className="hover:text-gray-600">AI Minds</a>
+              <a href="http://localhost/AI_Chat_Page/AIminds_Chat.php" className="hover:text-gray-600">AI Minds</a>
              
               {auth ? (
                 <div className="relative">
