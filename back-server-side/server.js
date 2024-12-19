@@ -76,14 +76,38 @@ app.get('/protected', isLoggedIn,(req, res) => {
 
   app.get('/api/users/to', (req, res) => {
         const { given_name, family_name, email } = req.user;  
+        const profile_image = req.user.photos && req.user.photos.length > 0 ? req.user.photos[0].value : null;
+        const send_photo_link ='';
+
         console.log('setIT', given_name, family_name, email);  
+        console.log('User Info:', given_name, family_name, email, profile_image); 
         
+
+        const get_photo = `SELECT profileImage FROM registerd_user WHERE email =?`;
+        connection.query(get_photo, [req.user.email], (err, data) => {
+            if(err){
+                return res.json('user profile image not found');
+            }
+            else if(data.length > 0){
+                send_photo_link = data[0].profileImage;
+                return res.json(send_photo_link);
+            }
+            else{
+                return res.json('user profile image not found');
+            }
+        });
+
         return res.json({
             firstName: given_name,
             lastName: family_name,
             email: email,
+            profileImage: send_photo_link
         });
   });
+
+  /*app.get('/api/profile', (req, res) => {
+     
+  })*/
 
 /* google end point */  
 
@@ -104,14 +128,29 @@ const verfiyUser = (req, res, next) => {
 };
 
 
-app.get('/', verfiyUser, (req, res) =>{
-    return res.json({
-        Status: "User authenticated successfully",
-        FirstName: req.firstname,
-        LastName: req.lastname,
-        Email: req.email || 'No email available'
+app.get('/', verfiyUser, (req, res) => {
+    const get_photo = `SELECT profileImage FROM registerd_user WHERE email = ?`;
+    connection.query(get_photo, [req.email], (err, data) => {
+        if (err) {
+            console.error("Error fetching profile image:", err);
+            return res.json('User profile image not found');
+        }
+
+        let send_photo_link = '';
+        if (data.length > 0 && data[0].profileImage) {
+            send_photo_link = data[0].profileImage;
+        }
+
+        // Respond after the query completes
+        return res.json({
+            Status: "User authenticated successfully",
+            FirstName: req.firstname,
+            LastName: req.lastname,
+            Email: req.email || 'No email available',
+            photo: send_photo_link || 'No photo available',
+        });
     });
-})
+});
 
 
 
@@ -244,6 +283,7 @@ app.post('/login', (req, res) => {
                 if(response){
                     const firstName = data[0].FirstName;
                     const lastName = data[0].LastName;
+                    const phoo = data[0].profileImage;
 
                     const token = jwt.sign({ firstName, lastName, email },'secretkey', { expiresIn: '1d' });
                     res.cookie('token', token);
