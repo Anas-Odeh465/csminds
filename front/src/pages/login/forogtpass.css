@@ -1,0 +1,107 @@
+.verification-container {
+  width: 24rem;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 110px auto;
+  text-align: center;
+}
+
+.verification-header {
+  background: linear-gradient(to right, #2563eb, #3b82f6);
+  padding: 1.5rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  text-align: center;
+}
+
+.verification-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 1.5rem 0;
+}
+
+.email-input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.email-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+.verification-inputs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.code-input {
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  color: #374151;
+  transition: all 0.3s ease;
+}
+
+.code-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+.verification-container button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.send-button {
+  background-color: #3b82f6;
+  color: white;
+  margin-top: 1rem;
+}
+
+.send-button:hover {
+  background-color: #2563eb;
+}
+
+.verify-button {
+  background-color: #10b981;
+  color: white;
+  margin-top: 0.75rem;
+}
+
+.verify-button:hover {
+  background-color: #059669;
+}
+
+.resend-button {
+  background-color: #e5e7eb;
+  color: #374151;
+  margin-top: 0.75rem;
+}
+
+.resend-button:hover {
+  background-color: #d1d5db;
+}
+
+.text-danger {
+  color: red;
+  font-size: 0.75rem;
+  position: relative;
+  top: -10px;
+}

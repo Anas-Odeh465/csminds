@@ -10,7 +10,7 @@ const AuthPage = ({state}) => {
   const location = useLocation();
   const state_button = location.state;
   const [activeTab, setActiveTab] = useState(state_button);
-  
+
   /*
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
@@ -62,7 +62,7 @@ const AuthPage = ({state}) => {
                     } else {
                         alert(res.data);
                         navigate('/');
-                        location.reload(true);
+                        window.location.reload();
                     }
                 })
                 .catch(err => console.error(err));
@@ -84,7 +84,7 @@ const AuthPage = ({state}) => {
             axios.post('http://localhost:3307/create-account', valuesSignUp).then(res => {
                 if (res.data === "Email already exists"){
                     alert(res.data);
-                    navigate('/login');
+                    navigate('/login', {state: 'login'});
                     location.reload(true);
                 }
                 else if (res.data === "User registered successfully!"){
@@ -112,6 +112,12 @@ const AuthPage = ({state}) => {
   // same for login and sign up
   function loginWithGoogle() {
     window.location.href = 'http://localhost:3307/auth/google';
+  }
+
+  // handle forgot password
+  const handelForgotPassword = (event) => {
+    event.preventDefault();
+    navigate('/passCode');
   }
 
   return (
@@ -190,7 +196,7 @@ const AuthPage = ({state}) => {
                       <span>Login with Google</span>
                 </div>
                 <div className="text-center">
-                  <a href="#" className="text-sm text-blue-600 hover:underline transition-colors">
+                  <a href="#" onClick={handelForgotPassword} className="text-sm text-blue-600 hover:underline transition-colors">
                     Forgot Password?
                   </a>
                 </div>
