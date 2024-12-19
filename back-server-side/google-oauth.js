@@ -25,19 +25,22 @@ passport.use(new GoogleStrategy({
 function(request, accessToken, refreshToken, profile, done) {
 
   const passed = 'Google-Account';
-  const verification_status = "Verifyed User";
-  const { given_name, family_name, email} = profile;
+  const verification_status = "Verified User";
+  let { given_name, family_name, email } = profile;
+
+  // Check if family_name is undefined and assign 'undefined' if so
+  if (!family_name) {
+    family_name = 'undefined';
+  }
 
   const check_user_exist = `SELECT * FROM registerd_user WHERE email=?`;
-  connection.query(check_user_exist,[email], (err, result) => {
-    if(err) {
-      console.log("result: [", result, "]",err);
+  connection.query(check_user_exist, [email], (err, result) => {
+    if (err) {
+      console.log("result: [", result, "]", err);
       return done(err);
-    }
-    else if(result.length > 0) {
+    } else if (result.length > 0) {
       return done(null, profile);
-    }
-    else{
+    } else {
       const Query = `INSERT INTO registerd_user (FirstName, LastName, email, password, verification_state)
       VALUES (?, ?, ?, ?, ?)`;
 
