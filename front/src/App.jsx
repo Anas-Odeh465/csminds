@@ -8,6 +8,8 @@ import BecomeInstructor from './components/joinus/joinUs';
 import CourseDetailsPage from './pages/courseDetails';
 import AuthPage from './pages/login/login';
 import { UserAvatar, UserAvatarSmall } from './components/Profile/userAvat';
+import EmailVerification from './pages/login/forgot-password';
+import ResetPassword from './pages/login/reset-password';
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
           <Route path="/login" element={<AuthPage />} />
           <Route path="/useravtart" element={<UserAvatar />} />
           <Route path="/useravtart2" element={<UserAvatarSmall />} />
+          <Route path="/passCode" element={<EmailVerification />} />
+          <Route path="/resetpass" element={<ResetPassword />} />
 
         </Routes>
       </main>

@@ -68,7 +68,7 @@ const NavigationBar = () => {
   const handleLogout = () => {
     axios.get('http://localhost:3307/logout')
       .then(() => {
-        navigate('/login');
+        navigate('/login', {state: 'login'});
         location.reload(true);
       })
       .catch(err => console.log('Error during logout:', err));
