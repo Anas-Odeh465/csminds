@@ -122,7 +122,7 @@ const AuthPage = ({state}) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4 py-12 mt-20">
-      <div className="w-full max-w-md">
+      <div className="w-screen max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 hover:scale-105">
           {/* Header with Gradient */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-400 px-8 py-6 text-center">

@@ -115,7 +115,7 @@ const NavigationBar = () => {
     }
     else if (option === "Edit profile"){
       setDrop(false);
-      navigate('/')
+      navigate('/editProfile')
     }
   };
 

@@ -109,36 +109,6 @@ function ProfilePage() {
     marginLeft:"32px",
   };
 
-  const coursesContainerStyle = {
-    marginTop: "30px",
-    color: "#000",
-    backgroundColor: "#f5f5f5",
-    padding: "20px",
-  };
-
-  const coursesTitleStyle = {
-    fontSize: "18px",
-    marginBottom: "20px",
-    fontWeight: "bold",
-  };
-
-  const coursesGridStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    gap: "15px",
-  };
-
-  const courseCardStyle = {
-    padding: "10px",
-    backgroundColor: "#fff",
-    borderRadius: "10px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  };
-
-  const courseImageStyle = {
-    width: "100%",
-    borderRadius: "10px",
-  };
 
   return (
     <>
