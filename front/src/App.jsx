@@ -12,6 +12,7 @@ import EmailVerification from './pages/login/forgot-password';
 import ResetPassword from './pages/login/reset-password';
 import AccountEmailVerification from './pages/login/verify-email-signup';
 import ProfilePage from './components/profile/profilePage';
+import EditProfilePage  from './components/profile/EditProfile';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/resetpass" element={<ResetPassword />} />
           <Route path="/Aemailverify" element={<AccountEmailVerification />} />
           <Route path="/profilpage" element={<ProfilePage />} />
+          <Route path="/editProfile" element={<EditProfilePage  />} />
 
         </Routes>
       </main>
