@@ -1,23 +1,95 @@
 import React, { useState, useEffect } from 'react';
-
+import axios from 'axios';
+import {UserAvatar_large}  from '../Profile/userAvat';
 
 
 export default function EditProfilePage (){
 
-
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
+    const [auth, setAuth] = useState(false);
+    const [firstName, setFirstname] = useState('');
+    const [lastName, setLastname] = useState('');
+    const [email, setEmail] = useState('');
     const [headline, setHeadline] = useState('');
     const [biography, setBiography] = useState('');
-    const [profileImage, setProfileImage] = useState(null);
-  
+    const [photo, setPhoto] = useState('');
+    const [X, setX] = useState('');
+    const [youtube, setYoutube] = useState('');
+    const [linkedin, setLinkedin] = useState('');
+    const [facebook, setFaceBook] = useState('');
+
+    axios.defaults.withCredentials = true;
+    useEffect(() => {
+        const fetchAuthStatus = async () => {
+        try {
+            const res1 = await axios.get('http://localhost:3307');
+            if (res1.data && res1.data.FirstName) {
+
+                setAuth(true);
+
+                // over the current data
+                setFirstname(res1.data.FirstName);
+                setLastname(res1.data.LastName);
+                setEmail(res1.data.Email);
+                setPhoto(res1.data.photo);
+                setHeadline(res1.data.headline);
+                setBiography(res1.data.biography);
+                setX(res1.data.x);
+                setYoutube(res1.data.youtube);
+                setLinkedin(res1.data.linkedin);
+                setFaceBook(res1.data.facebook);
+
+            } else {
+            
+            const res2 = await axios.get('http://localhost:3307/api/users/to');
+            if (res2.data && res2.data.user) {
+                setAuth(true);
+                setFirstname(res2.data.user.given_name);
+                setLastname(res2.data.user.family_name);
+                setEmail(res2.data.user.email);
+                setPhoto(res2.data.user.send_photo_link);
+            } else {
+                setAuth(false);
+            }
+            
+            }
+        } catch (err) {
+            console.error("Error fetching auth status:", err);
+            setAuth(false);
+        }
+        };
+    
+        fetchAuthStatus();
+    }, [auth]);
+
     const handleImageChange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        setProfileImage(URL.createObjectURL(file));
+        setPhoto(URL.createObjectURL(file));
       }
-    };
+    };    
+    
 
+    const handelSaveButton = (e) => {
+        e.preventDefault();
+        axios.post('http://localhost:3307/update/profile',
+          [firstName,
+            lastName,
+            email,
+            headline,
+            biography,
+            photo,
+            X,
+            youtube,
+            linkedin,
+            facebook]).then(res => {
+            if(res.data === 'Profile updated successfully'){
+                alert('Profile updated successfully');
+            }
+            else{
+                alert('Failed to update profile');
+            }
+        }).catch(err => { console.log(err) });
+    }
 
     const fileInputStyle = {
         padding: '10px',
@@ -43,6 +115,8 @@ return (<>
         <input
             id='First'
             type="text"
+            value={firstName}
+            onChange={(e) => setFirstname(e.target.value)}
             placeholder="First name"
             className="w-full px-4 py-2 border border-gray-600 rounded-md"
             style={{ width: '550px', outline: 'none' }}
@@ -66,6 +140,8 @@ return (<>
         <input
             id='Last'
             type="text"
+            value={lastName}
+            onChange={(e) => setLastname(e.target.value)}
             placeholder="Last name"
             className="w-full px-4 py-2 border border-gray-600 rounded-md"
             style={{ width: '550px', outline: 'none' }} 
@@ -78,6 +154,8 @@ return (<>
         <input
             id='X'
             type="text"
+            value={X}
+            onChange={(e) => setX(e.target.value)}
             placeholder="http://www.x.com/"
             className="w-full px-4 py-2 border border-gray-600 rounded-md ml-[40px] "
             style={{ width: '550px', outline: 'none' }}
@@ -88,6 +166,8 @@ return (<>
         <input
             id='Headline'
             type="text"
+            value={headline}
+            onChange={(e) => setHeadline(e.target.value)}
             placeholder="Your Headline profile"
             className="w-full px-4 py-2 border border-gray-600 rounded-md"
             style={{ width: '550px', outline: 'none' }} 
@@ -100,16 +180,26 @@ return (<>
         <input
             id='FaceBook'
             type="text"
+            value={facebook}
+            onChange={(e) => setFaceBook(e.target.value)}
             placeholder="http://www.facebook.com/"
             className="w-full px-4 py-2 border border-gray-600 rounded-md ml-[40px]"
             style={{ width: '550px', outline: 'none' }}
         />
+
+        {/* Hidden email input */}
+        <input 
+        type="email" 
+        value={email}
+        style={{ visibility: 'hidden'}}/>
 
         {/* biography input */}
         <label htmlFor='Biography' className="block text-gray-700 font-semibold mb-2 mt-[20px]">Biography Profile</label>
         <textarea 
             id='Biography'
             type="text"
+            value={biography}
+            onChange={(e) => setBiography(e.target.value)}
             placeholder="Enter your story"
             className=" px-4 py-2 border border-gray-600 rounded-md"
             style={{ width: '550px',  resize: 'none', height: '200px', outline: 'none' }} 
@@ -122,6 +212,8 @@ return (<>
         <input
             id='LinkedIn'
             type="text"
+            value={linkedin}
+            onChange={(e) => setLinkedin(e.target.value)}
             placeholder="http://www.linkedin.com/"
             className="ml-[40px] mt-[5px] absolute w-full px-4 py-2 border border-gray-600 rounded-md ml-[40px]"
             style={{ width: '550px', outline: 'none' }}
@@ -134,6 +226,8 @@ return (<>
         <input
             id='Youtube'
             type="text"
+            value={youtube}
+            onChange={(e) => setYoutube(e.target.value)}
             placeholder="http://www.youtube.com/"
             className="ml-[40px] mt-[100px] absolute w-full px-4 py-2 border border-gray-600 rounded-md ml-[40px]"
             style={{ width: '550px', outline: 'none' }}
@@ -146,20 +240,25 @@ return (<>
         <input
             id="profileImage"
             type="file"
+            name='photo'
             accept="image/*"
             onChange={handleImageChange}
             className="mr-[20px]"
             style={fileInputStyle}
         />
-        {profileImage && <img src={profileImage} alt="Profile preview" 
-        style={{ marginTop: '10px', width: '100px', height: '100px', 
-        borderRadius: '50%' }} />}
+     
 
+        {photo == 'No photo available' ? (<UserAvatar_large firstName={firstName} />) : 
+        ( <img src={photo} alt="Profile preview" 
+            style={{ marginTop: '10px', width: '100px',
+            height: '100px', borderRadius: '50%' }} />) } 
+         
+          
         
-
         {/* save button */}
         <button
             type="submit"
+            onClick={handelSaveButton}
             className="w-full px-4 py-2 border border-gray-600 rounded-md 
                     bg-black text-white hover:bg-gray-800 mt-[20px]"
             style={{ width: '100px', outline: 'none' }}
@@ -169,11 +268,5 @@ return (<>
 
     </div>
 </div>
-
-
-
-
-
 </>);
- 
 }

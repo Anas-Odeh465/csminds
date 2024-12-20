@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { FaFacebook, FaYoutube } from 'react-icons/fa';
+import { FaFacebook, FaYoutube, FaTimes, FaLinkedin } from 'react-icons/fa';
 import googleLogo from "../../assets/google.png";
 import axios from 'axios';
 
@@ -11,6 +11,12 @@ function ProfilePage() {
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [photo, setPhoto] = useState('');
+  const [headline, setHeadline] = useState('');
+  const [biography, setBiography] = useState('');
+  const [X, setX] = useState('');
+  const [youtube, setYoutube] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [facebook, setFaceBook] = useState('');
 
   const navigate = useNavigate();
   const defaultImage = googleLogo;
@@ -29,6 +35,12 @@ function ProfilePage() {
           setLastname(res1.data.LastName);
           setEmail(res1.data.Email);
           setPhoto(res1.data.photo);
+          setHeadline(res1.data.headline);
+          setBiography(res1.data.biography);
+          setX(res1.data.x);
+          setYoutube(res1.data.youtube);
+          setLinkedin(res1.data.linkedin);
+          setFaceBook(res1.data.facebook);
         } else {
           
           const res2 = await axios.get('http://localhost:3307/api/users/to');
@@ -106,7 +118,7 @@ function ProfilePage() {
     position: "absolute",
     gap: "10px",
     marginTop: "180px",
-    marginLeft:"32px",
+    marginLeft:"16px",
   };
 
 
@@ -114,33 +126,35 @@ function ProfilePage() {
     <>
       <div style={containerStyle}>
         <h1>{firstname} {lastname}</h1>
-        <h2>Learner at csminds</h2>
+        <h2>{headline}</h2>
       </div>
 
       <div style={profileStyle}>
-        <img src={photoUrl} alt={photoUrl} style={imageStyle} title={firstname +" "+ lastname}/>
+
+        <img src={photo} alt={'profile picture'} style={imageStyle} title={firstname +" "+ lastname}/>
+
         <div style={linksStyle}>
-          <a href="#">
-             <FaFacebook size={20} />
-          </a>
-          <a href="#">
-             <FaYoutube size={20}  style={{ color: 'red' }}/>
-          </a>
+
+            {facebook ? <a href={facebook}>
+              <FaFacebook size={20} style={{ color: 'blue' }}/>
+            </a> : ('')}
+            
+            {youtube ? (<a href={youtube}>
+              <FaYoutube size={20}  style={{ color: 'red' }}/>
+            </a>) : ('')}
+
+            {X ? (<a href={X}>
+              <FaTimes size={20}  style={{ color: 'black' }}/>
+            </a>) : ('')}
+
+            {linkedin ? (<a href={linkedin}>
+              <FaLinkedin size={20}  style={{ color: 'blue' }}/>
+            </a>) : ('')}
+          
         </div>
 
         <div style={descriptionContainerStyle}>
-
-          <p>
-            My name is Anas and I am 23 years old. I studied at Al Hussein Bin
-            Talal University, specializing in computer information systems in
-            bachelor's degree. I am learning on the Udemy platform and want to
-            become an Instructor.
-          </p>
-          <p>
-            I love programming because it makes me think logically, understand
-            difficult problems, and analyze them based on the problems I face.
-          </p> 
-          
+          <p>{biography}</p>
         </div>
 
       </div>

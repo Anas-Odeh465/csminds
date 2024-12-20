@@ -129,26 +129,50 @@ const verfiyUser = (req, res, next) => {
 
 
 app.get('/', verfiyUser, (req, res) => {
-    const get_photo = `SELECT profileImage FROM registerd_user WHERE email = ?`;
-    connection.query(get_photo, [req.email], (err, data) => {
+    let firstName = '';
+    let lastName = '';
+    let headline = '';
+    let biography = '';
+    let photo_link = '';
+    let X = '';
+    let youtube = '';
+    let linkedin = '';
+    let facebook = '';
+
+    const get_user = `SELECT * FROM registerd_user WHERE email=?`;
+    connection.query(get_user, [req.email], (err, result) => {
         if (err) {
-            console.error("Error fetching profile image:", err);
-            return res.json('User profile image not found');
+            console.error("Error fetching user details:", err);
+            return res.json('User details not found');
         }
+        else if (result.length > 0) {
+            firstName = result[0].FirstName;
+            lastName = result[0].LastName;
+            headline = result[0].headline;
+            biography = result[0].biography;
+            photo_link = result[0].profileImage;
+            X = result[0].X;
+            youtube = result[0].youtube;
+            linkedin = result[0].linkedin;
+            facebook = result[0].facebook;
 
-        let send_photo_link = '';
-        if (data.length > 0 && data[0].profileImage) {
-            send_photo_link = data[0].profileImage;
+            return res.json({
+                Status: "User authenticated successfully",
+                FirstName: req.firstname,
+                LastName: req.lastname,
+                Email: req.email || 'No email available',
+                photo: photo_link || 'No photo available',
+                headline: headline ,
+                biography: biography ,
+                x: X ,
+                youtube: youtube ,
+                linkedin: linkedin ,
+                facebook: facebook 
+            });
         }
-
-        // Respond after the query completes
-        return res.json({
-            Status: "User authenticated successfully",
-            FirstName: req.firstname,
-            LastName: req.lastname,
-            Email: req.email || 'No email available',
-            photo: send_photo_link || 'No photo available',
-        });
+        else {
+            return res.json('User details not found');
+        }
     });
 });
 
@@ -495,6 +519,55 @@ app.post('/reset-password', (req, res) => {
         }
         else{
             return res.json("Email not found");
+        }
+    });
+});
+
+app.post('/update/profile', (req, res) =>{
+    let {firstName, lastName, email, headline, biography,
+     photo, X, youtube, linkedin, facebook } = req.body;
+
+    firstName = req.body[0];
+    lastName = req.body[1];
+    email = req.body[2];
+    headline = req.body[3];
+    biography = req.body[4];
+    photo = req.body[5];
+    X = req.body[6];
+    youtube = req.body[7];
+    linkedin = req.body[8];
+    facebook = req.body[9];
+
+    console.log(`Server got information to update profile from ${email}: `, {
+        firstName : firstName, 
+        lastName : lastName, 
+        headline : headline,
+        biography: biography,
+        photo: photo,
+        X: X,
+        youtube: youtube,
+        linkedin: linkedin,
+        facebook: facebook
+    });
+
+    const checkProfile = `SELECT * FROM registerd_user WHERE email=?`;
+    connection.query(checkProfile, [email], (err, data) => {
+        if (err){
+            return res.json("Error: " + err);
+        }
+        else if (data.length > 0){
+            const updateProfile = `UPDATE registerd_user SET FirstName=?, LastName=?, headline=?, biography=?, profileImage=?, X=?, youtube=?, linkedin=?, facebook=? WHERE email=?`;
+            connection.query(updateProfile, [firstName, lastName, headline, biography, photo, X, youtube, linkedin, facebook, email], (err, data) =>{
+                if (err){
+                    return res.json("Error: " + err);
+                }
+                else{
+                    return res.json("Profile updated successfully");
+                }
+            });
+        }
+        else{
+            return res.json("User not found");
         }
     });
 });
