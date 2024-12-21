@@ -4,7 +4,7 @@ const UserAvatar = ({ firstName }) => {
   const firstLetter = firstName.charAt(0).toUpperCase();
 
   return (
-    <div
+    <div 
       style={{
         width: '30px',
         height: '30px',
@@ -47,9 +47,6 @@ const UserAvatarSmall = ({ firstName }) => {
   };
 
 
-
-
-
 const UserAvatar_large = ({ firstName }) => {
     const firstLetter = firstName.charAt(0).toUpperCase();
     return (
@@ -72,6 +69,31 @@ const UserAvatar_large = ({ firstName }) => {
         {firstLetter}
       </div>
     );
+  };   
+
+
+  const UserAvatar_medium = ({ firstName }) => {
+    const firstLetter = firstName.charAt(0).toUpperCase();
+    return (
+      <div
+        style={{
+          width: '50px',
+          height: '50px',
+          backgroundColor: 'black',
+          color: 'white',
+          borderRadius: '50%',
+          display: 'block',
+          justifyContent: 'center',
+          alignItems: 'center',
+          fontSize: '60px',
+          marginTop: '20px',
+          textAlign: 'center',
+          gap: '10px',
+        }}
+      >
+        {firstLetter}
+      </div>
+    );
   };
 
-  export { UserAvatar, UserAvatarSmall, UserAvatar_large };
+  export { UserAvatar, UserAvatarSmall, UserAvatar_large, UserAvatar_medium };
