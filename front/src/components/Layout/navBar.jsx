@@ -3,7 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import img from '../../assets/5.svg';
-import { UserAvatar, UserAvatarSmall }  from '../Profile/userAvat';
+import { UserAvatar, UserAvatarSmall, UserAvatar_medium }  from '../Profile/userAvat';
 
 const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +13,7 @@ const NavigationBar = () => {
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [drop, setDrop] = useState(false);
+  const [photo, setPhoto] = useState('');
   const navigate = useNavigate();
 
   const categories = [
@@ -42,6 +43,7 @@ const NavigationBar = () => {
           setFirstname(res1.data.FirstName);
           setLastname(res1.data.LastName);
           setEmail(res1.data.Email);
+          setPhoto(res1.data.photo);
         } else {
           
           const res2 = await axios.get('http://localhost:3307/api/users/to');
@@ -209,8 +211,11 @@ const NavigationBar = () => {
                     onClick={() => setDrop(!drop)} 
                     className="flex items-center space-x-1 hover:text-gray-600"
                   >
+                     {photo == 'No photo available' ? (<UserAvatar firstName={firstname} />) : 
+                    ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
+                      style={{ width: '30px', display: 'block',
+                      height: '30px', borderRadius: '50%' }} />) }
                      
-                     <UserAvatar firstName={firstname} />
                       
                     <span style={{paddingLeft: '10px'}}>{firstname} {lastname}</span>
                   </button>
@@ -223,10 +228,13 @@ const NavigationBar = () => {
                        className="w-full text-left px-4 py-2 hover:bg-gray-50">
 
                         <div className="flex items-center">
-                          <UserAvatarSmall firstName={firstname} className="flex-shrink-0" />
-                          <p className="ml-1">{option}</p>
+                        {photo == 'No photo available' ? (<UserAvatar_medium firstName={firstname} />) : 
+                        ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
+                          style={{ width: '50px', display: 'block',
+                          height: '50px', borderRadius: '50%' }} />) }
+                          <p className="ml-1 pl-[5px]">{option}</p>
                         </div>
-                        <p className="text-gray-500 text-xs mt-1">{email}</p>
+                        <p className="text-gray-500 text-xs mt-1 ml-[12px]">{email}</p>
                      </button>
                      ))} 
                       <hr />

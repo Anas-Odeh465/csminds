@@ -7,6 +7,8 @@ const cookie = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const passport = require('./google-oauth');
+const multer = require('multer');
+const path = require('path');
 require('dotenv').config();
 
 
@@ -523,6 +525,56 @@ app.post('/reset-password', (req, res) => {
     });
 });
 
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+      return cb(null, "./uploads/Images")
+    },
+    filename: function (req, file, cb) {
+      return cb(null, `${Date.now()}_${file.originalname}`)
+    }
+})
+  
+const upload = multer({storage})
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  
+
+app.post('/upload', upload.single('photo'), (req, res) => {
+    console.log('body: ',req.body)
+    console.log('email: ',req.body.email)
+    console.log('file: ',req.file) 
+
+    const imagePath = `/uploads/Images/${req.file.filename}`;
+
+    const check_if_picture = `SELECT profileImage FROM registerd_user WHERE email=?`;
+    connection.query(check_if_picture, [req.body.email], (err, data) => {
+        if (err){
+            return res.json("Error: " + err);
+        }
+        else if(data.length > 0){
+            const update_picture = `UPDATE registerd_user SET profileImage =? WHERE email =?`;
+            connection.query(update_picture, [imagePath, req.body.email], (err, data) =>{
+                if (err){
+                    console.log("Error: " + err);
+                }
+                else{
+                    console.log("Profile picture updated successfully", imagePath);
+                }
+            });
+        }
+        else{
+            // here insert the picture into the database if the user not has already uploaded picture 
+            const insert_picture = `INSERT INTO registerd_user (profileImage) VALUES(?) WHERE email=?`;
+            connection.query(insert_picture, [imagePath, req.body.email], (err, data) =>{
+                if (err){
+                    console.log("Error: " + err);
+                }
+                else{
+                    console.log("Profile picture inserted successfully", imagePath);
+                }
+            });
+        }
+    });
+})
+
 app.post('/update/profile', (req, res) =>{
     let {firstName, lastName, email, headline, biography,
      photo, X, youtube, linkedin, facebook } = req.body;
@@ -550,14 +602,15 @@ app.post('/update/profile', (req, res) =>{
         facebook: facebook
     });
 
+
     const checkProfile = `SELECT * FROM registerd_user WHERE email=?`;
     connection.query(checkProfile, [email], (err, data) => {
         if (err){
             return res.json("Error: " + err);
         }
         else if (data.length > 0){
-            const updateProfile = `UPDATE registerd_user SET FirstName=?, LastName=?, headline=?, biography=?, profileImage=?, X=?, youtube=?, linkedin=?, facebook=? WHERE email=?`;
-            connection.query(updateProfile, [firstName, lastName, headline, biography, photo, X, youtube, linkedin, facebook, email], (err, data) =>{
+            const updateProfile = `UPDATE registerd_user SET FirstName=?, LastName=?, headline=?, biography=?,  X=?, youtube=?, linkedin=?, facebook=? WHERE email=?`;
+            connection.query(updateProfile, [firstName, lastName, headline, biography, X, youtube, linkedin, facebook, email], (err, data) =>{
                 if (err){
                     return res.json("Error: " + err);
                 }
