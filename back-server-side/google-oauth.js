@@ -33,49 +33,23 @@ function(request, accessToken, refreshToken, profile, done) {
     family_name = 'undefined';
   }
 
-  const profileImage = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
-
   const check_user_exist = `SELECT * FROM registerd_user WHERE email=?`;
   connection.query(check_user_exist, [email], (err, result) => {
     if (err) {
       console.log("result: [", result, "]", err);
       return done(err);
     } else if (result.length > 0) {
-      const checkQuery = `SELECT profileImage FROM registerd_user WHERE email = ?`;
-      connection.query(checkQuery, [email], (err, result) => {
-        if (err) {
-          console.log("Error updating user:", err);
-          return done(err);
-        } else if (result.length > 0) {
-          const updateQuery = `UPDATE registerd_user SET profileImage = ? WHERE email = ?`;
-          connection.query(updateQuery, [profileImage, email], (err, result) => {
-            if (err) {
-              console.log("Error updating user:", err);
-              return done(err);
-            } else {
-              console.log('User profile image updated');
-              console.log(`User profile link: ${profileImage}`);
-              return done(null, profile);
-            }
-          });
-        }else {
-          console.log(`User profile founded no update: ${profileImage}`);
-          return done(null, profile);
-        }
-      });
       return done(null, profile);
     } else {
-      const Query = `INSERT INTO registerd_user (FirstName, LastName, email,
-       password, verification_state, profileImage)
-      VALUES (?, ?, ?, ?, ?, ?)`;
+      const Query = `INSERT INTO registerd_user (FirstName, LastName, email, password, verification_state)
+      VALUES (?, ?, ?, ?, ?)`;
 
-      connection.query(Query, [given_name, family_name, email, passed, verification_status, profileImage], (err, result) => {
+      connection.query(Query, [given_name, family_name, email, passed, verification_status], (err, result) => {
         if (err) {
           console.log("Error inserting new user:", err);
           return done(err);
         } else {
-          console.log('User profile inserted into database');
-          console.log('User profile Picture link: ',profileImage);
+          console.log('User inserted into database');
           return done(null, profile);
         }
       });

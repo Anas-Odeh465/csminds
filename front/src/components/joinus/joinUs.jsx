@@ -3,7 +3,7 @@ import img from '../../assets/image.jpg';
 import img2 from '../../assets/imag1.jpg';
 import img3 from '../../assets/imag2.jpg';
 import img4 from '../../assets/imag3.jpg';
-
+import { Link } from 'react-router-dom';
 const InstructorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -108,12 +108,14 @@ const InstructorPage = () => {
                     Privacy Policy
                   </a>
                 </div>
+                <Link to ='/steps'>
                 <button
                   type="submit"
                   className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   See it in action
                 </button>
+                </Link>
               </form>
               <button
                 onClick={closeModal}

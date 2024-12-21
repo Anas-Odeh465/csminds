@@ -45,29 +45,4 @@ const UserAvatar = ({ firstName }) => {
   );
 };
 
-const UserAvatar_large = ({ firstName }) => {
-  const firstLetter = firstName.charAt(0).toUpperCase();
-
-  return (
-    <div
-      style={{
-        width: '100px',
-        height: '100px',
-        backgroundColor: 'black',
-        color: 'white',
-        borderRadius: '50%',
-        display: 'block',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: '60px',
-        marginTop: '20px',
-        textAlign: 'center',
-        gap: '10px',
-      }}
-    >
-      {firstLetter}
-    </div>
-  );
-};
-
-export { UserAvatar, UserAvatarSmall, UserAvatar_large };
+export { UserAvatar, UserAvatarSmall };
