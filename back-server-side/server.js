@@ -78,38 +78,14 @@ app.get('/protected', isLoggedIn,(req, res) => {
 
   app.get('/api/users/to', (req, res) => {
         const { given_name, family_name, email } = req.user;  
-        const profile_image = req.user.photos && req.user.photos.length > 0 ? req.user.photos[0].value : null;
-        const send_photo_link ='';
-
         console.log('setIT', given_name, family_name, email);  
-        console.log('User Info:', given_name, family_name, email, profile_image); 
         
-
-        const get_photo = `SELECT profileImage FROM registerd_user WHERE email =?`;
-        connection.query(get_photo, [req.user.email], (err, data) => {
-            if(err){
-                return res.json('user profile image not found');
-            }
-            else if(data.length > 0){
-                send_photo_link = data[0].profileImage;
-                return res.json(send_photo_link);
-            }
-            else{
-                return res.json('user profile image not found');
-            }
-        });
-
         return res.json({
             firstName: given_name,
             lastName: family_name,
             email: email,
-            profileImage: send_photo_link
         });
   });
-
-  /*app.get('/api/profile', (req, res) => {
-     
-  })*/
 
 /* google end point */  
 
@@ -130,53 +106,14 @@ const verfiyUser = (req, res, next) => {
 };
 
 
-app.get('/', verfiyUser, (req, res) => {
-    let firstName = '';
-    let lastName = '';
-    let headline = '';
-    let biography = '';
-    let photo_link = '';
-    let X = '';
-    let youtube = '';
-    let linkedin = '';
-    let facebook = '';
-
-    const get_user = `SELECT * FROM registerd_user WHERE email=?`;
-    connection.query(get_user, [req.email], (err, result) => {
-        if (err) {
-            console.error("Error fetching user details:", err);
-            return res.json('User details not found');
-        }
-        else if (result.length > 0) {
-            firstName = result[0].FirstName;
-            lastName = result[0].LastName;
-            headline = result[0].headline;
-            biography = result[0].biography;
-            photo_link = result[0].profileImage;
-            X = result[0].X;
-            youtube = result[0].youtube;
-            linkedin = result[0].linkedin;
-            facebook = result[0].facebook;
-
-            return res.json({
-                Status: "User authenticated successfully",
-                FirstName: req.firstname,
-                LastName: req.lastname,
-                Email: req.email || 'No email available',
-                photo: photo_link || 'No photo available',
-                headline: headline ,
-                biography: biography ,
-                x: X ,
-                youtube: youtube ,
-                linkedin: linkedin ,
-                facebook: facebook 
-            });
-        }
-        else {
-            return res.json('User details not found');
-        }
+app.get('/', verfiyUser, (req, res) =>{
+    return res.json({
+        Status: "User authenticated successfully",
+        FirstName: req.firstname,
+        LastName: req.lastname,
+        Email: req.email || 'No email available'
     });
-});
+})
 
 
 
@@ -309,7 +246,6 @@ app.post('/login', (req, res) => {
                 if(response){
                     const firstName = data[0].FirstName;
                     const lastName = data[0].LastName;
-                    const phoo = data[0].profileImage;
 
                     const token = jwt.sign({ firstName, lastName, email },'secretkey', { expiresIn: '1d' });
                     res.cookie('token', token);
