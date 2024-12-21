@@ -17,6 +17,8 @@ export default function EditProfilePage (){
     const [linkedin, setLinkedin] = useState('');
     const [facebook, setFaceBook] = useState('');
 
+    const [showTempPic, setShowTempPic] = useState('');
+
     axios.defaults.withCredentials = true;
     useEffect(() => {
         const fetchAuthStatus = async () => {
@@ -62,13 +64,17 @@ export default function EditProfilePage (){
     }, [auth]);
 
     const handleImageChange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        setPhoto(URL.createObjectURL(file));
-      }
-    };    
+        const file = e.target.files[0];
+        if (file) {
+          setPhoto(URL.createObjectURL(file));
+          const formData = new FormData();
+          formData.append('photo', file);
+          formData.append('email', email);
+          setShowTempPic(formData);
+        }
+      };   
     
-
+    
     const handelSaveButton = (e) => {
         e.preventDefault();
         axios.post('http://localhost:3307/update/profile',
@@ -77,7 +83,7 @@ export default function EditProfilePage (){
             email,
             headline,
             biography,
-            photo,
+            showTempPic,
             X,
             youtube,
             linkedin,
@@ -89,7 +95,13 @@ export default function EditProfilePage (){
                 alert('Failed to update profile');
             }
         }).catch(err => { console.log(err) });
+
+        axios.post('http://localhost:3307/upload',showTempPic)
+        .then( res => {})
+        .catch(er => console.log(er))
     }
+
+    console.log('Upload PICTURE:', `http://localhost:3307${photo}`);
 
     const fileInputStyle = {
         padding: '10px',
@@ -102,7 +114,7 @@ export default function EditProfilePage (){
 
 return (<>
 
-<div className="bg-white py-16 w-screen mt-[80px] ml-[50px]">
+{auth ? (<div className="bg-white py-16 w-screen mt-[80px] ml-[50px]">
     <h2 className="text-4xl font-bold text-gray-800 mb-4 px-4 text-left">
        Profile & settings 
        <hr className="border-0 h-1 bg-gray-800 w-5/4 mx-auto my-8 relative ml-[-1px]"/>
@@ -249,7 +261,7 @@ return (<>
      
 
         {photo == 'No photo available' ? (<UserAvatar_large firstName={firstName} />) : 
-        ( <img src={photo} alt="Profile preview" 
+        ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
             style={{ marginTop: '10px', width: '100px',
             height: '100px', borderRadius: '50%' }} />) } 
          
@@ -267,6 +279,12 @@ return (<>
         </button>
 
     </div>
-</div>
+</div>) : (
+    <div className="w-screen text-center  mt-[250px] mb-[260px] ">
+        <h2 className="text-4xl font-bold text-gray-800 mt-[150px]">
+            Access denied profile and settings
+        </h2>
+    </div>
+)}
 </>);
 }

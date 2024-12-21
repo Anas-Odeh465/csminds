@@ -122,16 +122,17 @@ function ProfilePage() {
   };
 
 
-  return (
-    <>
-      <div style={containerStyle}>
+  return ( <>
+   { auth ? 
+    (<div> 
+     <div style={containerStyle}>
         <h1>{firstname} {lastname}</h1>
         <h2>{headline}</h2>
       </div>
 
       <div style={profileStyle}>
 
-        <img src={photo} alt={'profile picture'} style={imageStyle} title={firstname +" "+ lastname}/>
+        <img src={`http://localhost:3307${photo}`} alt={'profile picture'} style={imageStyle} title={firstname +" "+ lastname}/>
 
         <div style={linksStyle}>
 
@@ -158,8 +159,14 @@ function ProfilePage() {
         </div>
 
       </div>
-    </>
-  );
+    </div>) : (<div className="w-screen text-center  mt-[250px] mb-[260px] ">
+                  <h2 className="text-4xl font-bold text-gray-800 mt-[150px]">
+                      Access denied profile and settings
+                  </h2>
+              </div>)
+  }
+  
+  </>);
 }
 
 export default ProfilePage;
