@@ -11,6 +11,7 @@ const CourseCreationSteps = () => {
   const [outcomes, setOutcomes] = useState([]);
   const [newOutcome, setNewOutcome] = useState('');
 
+  // cate
   const categories = [
     'Development',
     'Business',
