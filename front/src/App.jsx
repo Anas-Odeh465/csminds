@@ -12,6 +12,9 @@ import EmailVerification from './pages/login/forgot-password';
 import ResetPassword from './pages/login/reset-password';
 import AccountEmailVerification from './pages/login/verify-email-signup';
 import CourseCreationSteps from './components/steps/steps';
+import EditProfilePage from './components/profile/editProfile';
+import ProfilePage from './components/profile/profilePage';
+
 function App() {
   return (
     
@@ -37,6 +40,8 @@ function App() {
           <Route path="/resetpass" element={<ResetPassword />} />
           <Route path="/Aemailverify" element={<AccountEmailVerification />} />
           <Route path="/steps" element={<CourseCreationSteps />} />
+          <Route path="/editProfile" element={<EditProfilePage />} />
+          <Route path="/publicProfile" element={<ProfilePage />} />
 
         </Routes>
       </main>
