@@ -83,7 +83,7 @@ export default function EditProfilePage (){
             email,
             headline,
             biography,
-            showTempPic,
+            // showTempPic,
             X,
             youtube,
             linkedin,
@@ -95,10 +95,11 @@ export default function EditProfilePage (){
                 alert('Failed to update profile');
             }
         }).catch(err => { console.log(err) });
-
-        axios.post('http://localhost:3307/upload',showTempPic)
-        .then( res => {})
-        .catch(er => console.log(er))
+        if (photo !== ''){
+            axios.post('http://localhost:3307/upload',showTempPic)
+            .then( res => {})
+            .catch(er => console.log(er))
+        }
     }
 
     console.log('Upload PICTURE:', `http://localhost:3307${photo}`);

@@ -107,12 +107,31 @@ const verfiyUser = (req, res, next) => {
 
 
 app.get('/', verfiyUser, (req, res) =>{
-    return res.json({
-        Status: "User authenticated successfully",
-        FirstName: req.firstname,
-        LastName: req.lastname,
-        Email: req.email || 'No email available'
-    });
+    const email = req.email;
+    const sql_statement = `SELECT * FROM registerd_user WHERE email =?`;
+    connection.query(sql_statement, [email], (err, result) => {
+        if (err) {
+            return res.json("Error: " + err);
+        }
+        if(result.length > 0){
+            return res.json({
+                Status: "User authenticated successfully",
+                FirstName: req.firstname,
+                LastName: req.lastname,
+                Email: req.email || 'No email available',
+                photo: result[0].profileImage,
+                headline: result[0].headline  ,
+                biography: result[0].biography ,
+                X: result[0].X ,
+                youtube: result[0].youtube ,
+                linkedin: result[0].linkedin ,
+                facebook: result[0].facebook
+            });
+        }
+        else{
+            res.json("User not found");
+        }
+    });    
 })
 
 
@@ -479,7 +498,7 @@ app.post('/upload', upload.single('photo'), (req, res) => {
     console.log('file: ',req.file) 
 
     const imagePath = `/uploads/Images/${req.file.filename}`;
-
+    console.log('email request found : ', req.email)
     const check_if_picture = `SELECT profileImage FROM registerd_user WHERE email=?`;
     connection.query(check_if_picture, [req.body.email], (err, data) => {
         if (err){
@@ -520,24 +539,21 @@ app.post('/update/profile', (req, res) =>{
     email = req.body[2];
     headline = req.body[3];
     biography = req.body[4];
-    photo = req.body[5];
-    X = req.body[6];
-    youtube = req.body[7];
-    linkedin = req.body[8];
-    facebook = req.body[9];
+    X = req.body[5];
+    youtube = req.body[6];
+    linkedin = req.body[7];
+    facebook = req.body[8];
 
     console.log(`Server got information to update profile from ${email}: `, {
         firstName : firstName, 
         lastName : lastName, 
         headline : headline,
         biography: biography,
-        photo: photo,
         X: X,
         youtube: youtube,
         linkedin: linkedin,
         facebook: facebook
     });
-
 
     const checkProfile = `SELECT * FROM registerd_user WHERE email=?`;
     connection.query(checkProfile, [email], (err, data) => {
