@@ -59,7 +59,12 @@ const AuthPage = ({state}) => {
                 .then(res => {
                     if (res.data === "Invalid email or password") {
                         alert(res.data); 
-                    } else {
+                    } else if(res.data === "Invalid Email!") {
+                      alert(res.data);
+                      navigate('/login', {state: 'signup'});
+                      window.location.reload();
+                    }
+                    else{
                         alert(res.data);
                         navigate('/');
                         window.location.reload();
@@ -88,7 +93,6 @@ const AuthPage = ({state}) => {
                     location.reload(true);
                 }
                 else if (res.data === "User registered successfully!"){
-                    alert("One more step: verify your email account");
                     axios.post('http://localhost:3307/verify-email-account', valuesSignUp)
                     .then(res => {
                         if(res.data === "Verification sent to " + valuesSignUp.email){

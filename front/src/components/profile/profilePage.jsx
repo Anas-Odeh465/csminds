@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { FaFacebook, FaYoutube, FaTimes, FaLinkedin } from 'react-icons/fa';
 import googleLogo from "../../assets/google.png";
 import axios from 'axios';
+import { UserAvatar_large }  from '../Profile/userAvat';
 
 function ProfilePage() {
 
@@ -79,11 +80,11 @@ function ProfilePage() {
     fontFamily: "Arial, sans-serif",
     textAlign: "left",
     color: "#fff",
-    backgroundColor: "#646cff",
+    background: "linear-gradient(to bottom, rgb(72, 101, 231) 90%, white 100%)",
     paddingTop: "130px",
     paddingLeft: "100px",
     paddingBottom: "30px",
-    width: "100%",
+    width: "105%",
     fontSize: "18px",
   };
 
@@ -118,7 +119,7 @@ function ProfilePage() {
     position: "absolute",
     gap: "10px",
     marginTop: "180px",
-    marginLeft:"16px",
+    marginLeft:"8px",
   };
 
 
@@ -132,7 +133,9 @@ function ProfilePage() {
 
       <div style={profileStyle}>
 
-        <img src={`http://localhost:3307${photo}`} alt={'profile picture'} style={imageStyle} title={firstname +" "+ lastname}/>
+      {photo == 'No photo available' ? (<UserAvatar_large firstName={firstname} />) : 
+      ( <img src={`http://localhost:3307${photo}`} alt="profile picture" 
+        style={imageStyle} title={firstname +" "+ lastname} />) }
 
         <div style={linksStyle}>
 

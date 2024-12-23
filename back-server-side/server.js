@@ -2,6 +2,8 @@ const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const handlebars = require('handlebars');
 const bcrypt = require('bcrypt');
 const cookie = require('cookie-parser');
 const jwt = require('jsonwebtoken');
@@ -119,10 +121,10 @@ app.get('/', verfiyUser, (req, res) =>{
                 FirstName: req.firstname,
                 LastName: req.lastname,
                 Email: req.email || 'No email available',
-                photo: result[0].profileImage,
+                photo: result[0].profileImage || 'No photo available',
                 headline: result[0].headline  ,
                 biography: result[0].biography ,
-                X: result[0].X ,
+                x: result[0].X ,
                 youtube: result[0].youtube ,
                 linkedin: result[0].linkedin ,
                 facebook: result[0].facebook
@@ -134,6 +136,8 @@ app.get('/', verfiyUser, (req, res) =>{
     });    
 })
 
+const htmlTemplate = fs.readFileSync('email-template.HTML', 'utf8');
+const template = handlebars.compile(htmlTemplate);
 
 
 app.post('/create-account', (req, res) => {
@@ -188,7 +192,7 @@ app.post('/verify-email-account', (req, res) => {
         return res.status(400).json({ error: 'Email is required' });
     }
 
-    const checkemail = `SELECT email FROM registerd_user WHERE email = '${email}'`;
+    const checkemail = `SELECT * FROM registerd_user WHERE email = '${email}'`;
     connection.query(checkemail, [email], (err, data) =>{
         if (err){
             return res.json("Error: " + err);
@@ -196,11 +200,18 @@ app.post('/verify-email-account', (req, res) => {
         if(data.length > 0){
             const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
+            const emailData = {
+                name: `${data[0].FirstName + " " + data[0].LastName}`,
+                verification: `${verificationCode}`
+            };
+
+            const htmlToSend = template(emailData);
             const mailOptions = {
                 from: 'csminds0101@gmail.com', 
                 to: email,  
                 subject: 'Verify your email',
                 text: `Your verification code is: ${verificationCode}`,
+                html: htmlToSend,
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
@@ -258,24 +269,28 @@ app.post('/login', (req, res) => {
             return res.json("Error: " + err);
         }
         if(data.length > 0){
-            bcrypt.compare(password.toString(), data[0].password, (err, response) =>{
-                if (err){
-                    return res.json("Error: " + err);
-                }
-                if(response){
-                    const firstName = data[0].FirstName;
-                    const lastName = data[0].LastName;
-
-                    const token = jwt.sign({ firstName, lastName, email },'secretkey', { expiresIn: '1d' });
-                    res.cookie('token', token);
-                    console.log("Cookie token: ", token);
-                    return res.json(`Welcome ${firstName} ${lastName}`);
-                }
-                else{
-                    return res.json("Invalid email or password");
-                }
-            });
-            
+            if(data[0].verification_state === 'Verifyed User'){
+                bcrypt.compare(password.toString(), data[0].password, (err, response) =>{
+                    if (err){
+                        return res.json("Error: " + err);
+                    }
+                    if(response){
+                        const firstName = data[0].FirstName;
+                        const lastName = data[0].LastName;
+    
+                        const token = jwt.sign({ firstName, lastName, email },'secretkey', { expiresIn: '1d' });
+                        res.cookie('token', token);
+                        console.log("Cookie token: ", token);
+                        return res.json(`Welcome ${firstName} ${lastName}`);
+                    }
+                    else{
+                        return res.json("Invalid email or password");
+                    }
+                });
+            }
+            else{
+                return res.json("Invalid Email!");
+            } 
         }
         else{
             return res.json("Invalid email or password");
@@ -304,6 +319,9 @@ const transporter = nodemailer.createTransport({
     },
   });
 
+const htmlTemplate_pass = fs.readFileSync('password-template.HTML', 'utf8');
+const template_2 = handlebars.compile(htmlTemplate_pass);
+
 app.post('/forgot-password',(req, res) => {
 
     const { email } = req.body;
@@ -313,7 +331,7 @@ app.post('/forgot-password',(req, res) => {
         return res.status(400).json({ error: 'Email is required' });
     }
 
-    const checkemail = `SELECT email FROM registerd_user WHERE email = '${email}'`;
+    const checkemail = `SELECT * FROM registerd_user WHERE email = '${email}'`;
     connection.query(checkemail, [email], (err, data) =>{
         if (err){
             return res.json("Error: " + err);
@@ -321,11 +339,19 @@ app.post('/forgot-password',(req, res) => {
         if(data.length > 0){
             const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
+            const emailData = {
+                name: `${data[0].FirstName + " " + data[0].LastName}`,
+                verification: `${verificationCode}`
+            };
+
+            const htmlToSend = template(emailData);
+
             const mailOptions = {
                 from: 'csminds0101@gmail.com', 
                 to: email,  
                 subject: 'Reset Password',
                 text: `Your verification code is: ${verificationCode}`,
+                html: htmlToSend
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
@@ -532,7 +558,7 @@ app.post('/upload', upload.single('photo'), (req, res) => {
 
 app.post('/update/profile', (req, res) =>{
     let {firstName, lastName, email, headline, biography,
-     photo, X, youtube, linkedin, facebook } = req.body;
+      X, youtube, linkedin, facebook } = req.body;
 
     firstName = req.body[0];
     lastName = req.body[1];

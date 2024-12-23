@@ -85,8 +85,8 @@ const UserAvatar_large = ({ firstName }) => {
           display: 'block',
           justifyContent: 'center',
           alignItems: 'center',
-          fontSize: '60px',
-          marginTop: '20px',
+          fontSize: '30px',
+          marginTop: '5px',
           textAlign: 'center',
           gap: '10px',
         }}
