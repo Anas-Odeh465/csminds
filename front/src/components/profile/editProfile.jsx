@@ -16,6 +16,7 @@ export default function EditProfilePage (){
     const [youtube, setYoutube] = useState('');
     const [linkedin, setLinkedin] = useState('');
     const [facebook, setFaceBook] = useState('');
+    const [theNewPhoto, setTheNewPhoto] = useState('');
 
     const [showTempPic, setShowTempPic] = useState('');
 
@@ -66,7 +67,7 @@ export default function EditProfilePage (){
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-          setPhoto(URL.createObjectURL(file));
+          setTheNewPhoto(URL.createObjectURL(file));
           const formData = new FormData();
           formData.append('photo', file);
           formData.append('email', email);
@@ -103,6 +104,7 @@ export default function EditProfilePage (){
     }
 
     console.log('Upload PICTURE:', `http://localhost:3307${photo}`);
+    console.log('X : ', X);
 
     const fileInputStyle = {
         padding: '10px',
@@ -261,10 +263,26 @@ return (<>
         />
      
 
-        {photo == 'No photo available' ? (<UserAvatar_large firstName={firstName} />) : 
-        ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
+        { photo === 'No photo available' 
+        ? (
+           <UserAvatar_large firstName={firstName} />
+        ) :
+        'http://localhost:3307' + theNewPhoto !== `http://localhost:3307${photo}` 
+        ? ( theNewPhoto === '' 
+            ?(  
+                <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
+                style={{ marginTop: '10px', width: '100px',
+                height: '100px', borderRadius: '50%' }} />
+             ): (
+                <img src={theNewPhoto} alt="Profile preview" 
+                style={{ marginTop: '10px', width: '100px',
+                height: '100px', borderRadius: '50%' }} />
+             ) 
+        ) : (
+            <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
             style={{ marginTop: '10px', width: '100px',
-            height: '100px', borderRadius: '50%' }} />) } 
+            height: '100px', borderRadius: '50%' }} />
+        )}
          
           
         

@@ -107,7 +107,7 @@ const NavigationBar = () => {
   const handleProfileClicked = (option) => {
     if (option === firstname + " "+  lastname) {
       setDrop(false); 
-      navigate('/profileView');
+      navigate('/publicProfile');
     } else if (option === "Logout") {
       handleLogout();
       setDrop(false); 
@@ -200,10 +200,10 @@ const NavigationBar = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-6">
-              <a href="#" className="hover:text-gray-600">
+              <a href="#" className="text-gray-600">
                 <ShoppingCart className="w-5 h-5" />
               </a>
-              <a href="http://localhost/AI_Chat_Page/AIminds_Chat.php" className="hover:text-gray-600">AI Minds</a>
+              <a href="http://localhost/AI_Chat_Page/AIminds_Chat.php" className="text-gray-600">AI Mind</a>
              
               {auth ? (
                 <div className="relative">
@@ -234,7 +234,7 @@ const NavigationBar = () => {
                           height: '50px', borderRadius: '50%' }} />) }
                           <p className="ml-1 pl-[5px]">{option}</p>
                         </div>
-                        <p className="text-gray-500 text-xs mt-1 ml-[12px]">{email}</p>
+                        <p className="text-gray-500 text-xs mt-1 ml-[8px]">{email}</p>
                      </button>
                      ))} 
                       <hr />
@@ -290,13 +290,13 @@ const NavigationBar = () => {
                 <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2">
                   <button
                     onClick={() => navigate('/login', {state: 'login'})}
-                    className="px-6 py-2 rounded-full border border-gray-800 hover:bg-gray-100"
+                    className="px-6 py-2 rounded-full border border-blue-900 hover:bg-gray-200"
                   >
                     Login
                   </button>
                   <button
                     onClick={() => navigate('/login', {state: 'signup'})}
-                    className="px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700"
+                    className="px-6 py-2 rounded-full bg-blue-800 text-white hover:bg-gray-700"
                     id="Sign-Up"
                   >
                     Sign Up
