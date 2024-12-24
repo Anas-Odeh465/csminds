@@ -14,19 +14,23 @@ const CourseCreationSteps = () => {
   // cate
   const categories = [
     'Development',
-    'Business',
-    'Finance & Accounting',
+    'Data science',
     'IT & Software',
-    'Office Productivity',
     'Personal Development',
     'Design',
     'Marketing',
-    'Lifestyle',
+    'Business',
+    'Finance & Accounting',
+    'Office Productivity',
+  ];
+
+  /*
+  'Lifestyle',
     'Photography & Video',
     'Health & Fitness',
     'Music',
     'Teaching & Academics'
-  ];
+  */
 
   const levels = [
     { id: 'beginner', name: 'Beginner Level', description: 'No prior knowledge required' },
