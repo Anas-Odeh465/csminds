@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { FaFacebook, FaYoutube, FaTimes, FaLinkedin } from 'react-icons/fa';
-import googleLogo from "../../assets/google.png";
 import axios from 'axios';
 import { UserAvatar_large }  from '../Profile/userAvat';
 
@@ -20,7 +19,6 @@ function ProfilePage() {
   const [facebook, setFaceBook] = useState('');
 
   const navigate = useNavigate();
-  const defaultImage = googleLogo;
  
   
 
@@ -64,17 +62,11 @@ function ProfilePage() {
   
     fetchAuthStatus();
     
-  }, [auth]);
-
-  
-  const photoUrl = photo ? photo : defaultImage;
-
-  
+  }, [auth]);  
 
   console.log("Final firstname:", firstname);
   console.log("Final lastname:", lastname);
   console.log("Final email:", email);
-  console.log("Final photoUrl:", photoUrl);
 
   const containerStyle = {
     fontFamily: "Arial, sans-serif",
