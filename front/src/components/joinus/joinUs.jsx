@@ -1,11 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import img from '../../assets/image.jpg';
 import img2 from '../../assets/imag1.jpg';
 import img3 from '../../assets/imag2.jpg';
 import img4 from '../../assets/imag3.jpg';
-import { Link } from 'react-router-dom';
+import {useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 const InstructorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [auth, setAuth] = useState(false);
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
+  const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+  // fill information
+
+  const [role, setRole] = useState('');
+  const [number, setNumber] = useState('');
+
+  // if user want another name or email
+  const [Instructor_name, setInstructorName] = useState('');
+  const [InstructorWorkEmail, setInstructorWorkEmail] = useState('');
+
+  const handleChange = (event) => {
+    setRole(event.target.value); 
+  };
+
+  axios.defaults.withCredentials = true;
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      try {
+        const res1 = await axios.get('http://localhost:3307');
+        
+        if (res1.data && res1.data.FirstName) {
+          setAuth(true);
+          setFirstname(res1.data.FirstName);
+          setLastname(res1.data.LastName);
+          setEmail(res1.data.Email);
+          setInstructorName(res1.data.FirstName + ' ' + res1.data.LastName)
+        } else {
+          
+          const res2 = await axios.get('http://localhost:3307/api/users/to');
+          if (res2.data && res2.data.user) {
+            setAuth(true);
+            setFirstname(res1.data.FirstName);
+            setLastname(res1.data.LastName);
+            setEmail(res1.data.Email);
+          } else {
+            setAuth(false);
+          }
+          
+        }
+      } catch (err) {
+        console.error("Error fetching auth status:", err);
+        setAuth(false);
+      }
+    };
+  
+    fetchAuthStatus();
+    
+  }, [auth]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:3307/Instuctor/info', 
+      [Instructor_name, InstructorWorkEmail,email, role, number])
+      .then(res => {
+        if (res.data === 'Instructor info inserted successfully'){
+          alert('Information has been submitted successfully!');
+          navigate('/steps');
+        }
+        else {
+          alert('Failed to submit information!');
+        }
+        
+      }).catch(err => { console.error(err); });
+
+    } catch (error) { console.error(error); }
+  }
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -57,43 +129,56 @@ const InstructorPage = () => {
           <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded-md shadow-md max-w-lg w-full">
               <h3 className="text-xl font-bold text-gray-800 mb-4">
-                Want to use CSMinds in your classroom?
+                Want to use CS Minds in your classroom?
               </h3>
               <p className="text-gray-600 mb-6">
                 Fill out the form and get more information, including demo videos!
               </p>
               <form className="space-y-4">
                 <div>
-                  <label className="block text-gray-700 font-semibold mb-2">Name*</label>
+                  <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">Name*</label>
                   <input
+                    id="name"
                     type="text"
+                    defaultValue={Instructor_name}
+                    onChange={(e) => setInstructorName(e.target.value)}
                     placeholder="Your name"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-semibold mb-2">Work email*</label>
+                  <label htmlFor="work-email" className="block text-gray-700 font-semibold mb-2">Work email*</label>
                   <input
+                    id="work-email"
                     type="email"
+                    defaultValue={email}
+                    onChange={(e) => setInstructorWorkEmail(e.target.value)}
                     placeholder="Email address"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-semibold mb-2">Select your role*</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-md">
+                  <label htmlFor="role" className="block text-gray-700 font-semibold mb-2">Select your role*</label>
+                  <select 
+                  id="role" 
+                  value={role}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md">
                     <option>Select your role</option>
-                    <option>Teacher</option>
-                    <option>Administrator</option>
-                    <option>Other</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="Administrator">Administrator</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-semibold mb-2">
+                  <label htmlFor="number" className="block text-gray-700 font-semibold mb-2">
                     Number of learners*
                   </label>
                   <input
+                    id="number"
                     type="number"
+                    value={number}
+                    onChange={(e) => setNumber(e.target.value)}
                     placeholder="Number"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md"
                   />
@@ -110,6 +195,7 @@ const InstructorPage = () => {
                 </div>
                 <Link to ='/steps'>
                 <button
+                  onClick={handleSubmit}
                   type="submit"
                   className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >

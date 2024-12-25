@@ -603,6 +603,51 @@ app.post('/update/profile', (req, res) =>{
     });
 });
 
+app.post('/Instuctor/info', (req, res) => {
+    const Name = req.body[0];
+    const WorkEmail = req.body[1];
+    const CS_Minds_Orginal_email = req.body[2];
+    const Role = req.body[3];
+    const Number = req.body[4];
+
+    console.log(`Server got information to set instructor info from ${CS_Minds_Orginal_email}: `, {
+        Name : Name,
+        WorkEmail : WorkEmail,
+        CS_Minds_Orginal_email : CS_Minds_Orginal_email,
+        Role : Role,
+        Number : Number
+    });
+
+    const checkID = `SELECT id FROM registerd_user WHERE email=?`;
+    connection.query(checkID, [CS_Minds_Orginal_email], (err, data) => {
+        if (err){
+            return res.json("Error: " + err);
+        }
+        else if (data.length > 0){
+            const userID = data[0].id;
+            if (WorkEmail !== ''){
+                const Insert_Instructor = `INSERT INTO instructors 
+                (user_ID, instructor_name, work_Email, role, number_Learners) VALUES(?,?,?,?,?)`;
+                connection.query(Insert_Instructor, [userID, Name, WorkEmail, Role, Number], (err, data) =>{
+                    if (err){
+                        return res.json("Error: " + err);
+                    }
+                    else{
+                        return res.json("Instructor info inserted successfully");
+                    }
+                });
+            }
+            else{
+
+            } 
+        }
+        else{
+            return res.json("User not found");
+        }
+    })
+    
+})
+
 app.listen(port, () => {
     console.log('Server is running at port', port);
 });
