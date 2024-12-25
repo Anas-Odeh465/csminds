@@ -16,6 +16,7 @@ const JoinInstructorSection = () => {
           setAuth(true);
         } else {
           
+          
           const res2 = await axios.get('http://localhost:3307/api/users/to');
           if (res2.data && res2.data.user) {
             setAuth(true);
