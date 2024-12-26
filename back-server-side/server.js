@@ -136,6 +136,29 @@ app.get('/', verfiyUser, (req, res) =>{
     });    
 })
 
+app.get('/check=instructors', (req, res) => {
+    const { email } = req.query;
+    const query = ` SELECT i.* FROM registerd_user u
+        LEFT JOIN instructors i ON u.id = i.user_ID
+        WHERE u.email = ?`;
+    connection.query(query, [email], (err, result) => {
+        if (err) {
+            return res.json("Error: " + err);
+        }
+        if (result.length > 0 && result[0].user_ID) {
+            return res.json({
+                Status: "found instructor",
+                instructors: 'true'
+            });
+        } else if (result.length > 0) {
+            return res.json("Not instructor");
+        } else {
+            return res.json("User not found");
+        }
+    });
+});
+
+
 const htmlTemplate = fs.readFileSync('email-template.HTML', 'utf8');
 const template = handlebars.compile(htmlTemplate);
 
@@ -625,21 +648,41 @@ app.post('/Instuctor/info', (req, res) => {
         }
         else if (data.length > 0){
             const userID = data[0].id;
-            if (WorkEmail !== ''){
-                const Insert_Instructor = `INSERT INTO instructors 
-                (user_ID, instructor_name, work_Email, role, number_Learners) VALUES(?,?,?,?,?)`;
-                connection.query(Insert_Instructor, [userID, Name, WorkEmail, Role, Number], (err, data) =>{
-                    if (err){
-                        return res.json("Error: " + err);
+            const check_already_Instructor = `SELECT * FROM instructors WHERE user_ID=?`;
+            connection.query(check_already_Instructor, [userID], (err, data) => {
+                if (err){
+                    return res.json("Error: " + err);
+                }
+                else if (data.length > 0){
+                    return res.json("You are already Instructor");
+                }
+                else{
+                    if (WorkEmail !== ''){
+                        const Insert_Instructor = `INSERT INTO instructors 
+                        (user_ID, instructor_name, work_Email, role, number_Learners) VALUES(?,?,?,?,?)`;
+                        connection.query(Insert_Instructor, [userID, Name, WorkEmail, Role, Number], (err, data) =>{
+                            if (err){
+                                return res.json("Error: " + err);
+                            }
+                            else{
+                                return res.json("Instructor info inserted successfully");
+                            }
+                        });
                     }
                     else{
-                        return res.json("Instructor info inserted successfully");
-                    }
-                });
-            }
-            else{
-
-            } 
+                        const Insert_Instructor = `INSERT INTO instructors 
+                        (user_ID, instructor_name, work_Email, role, number_Learners) VALUES(?,?,?,?,?)`;
+                        connection.query(Insert_Instructor, [userID, Name, CS_Minds_Orginal_email, Role, Number], (err, data) =>{
+                            if (err){
+                                return res.json("Error: " + err);
+                            }
+                            else{
+                                return res.json("Instructor info inserted successfully");
+                            }
+                        });
+                    } 
+                }
+            });
         }
         else{
             return res.json("User not found");
@@ -647,6 +690,16 @@ app.post('/Instuctor/info', (req, res) => {
     })
     
 })
+
+app.post('/steps/info', (req, res) => {
+    const title = req.body.title;
+    const category = req.body.category;
+    const level = req.body.level;
+    const requirement = req.body.prerequisites;
+    const outcomes = req.body.outcomes;
+    console.log('Server got info: ', title, category, level, requirement, outcomes);
+    return res.json('steps complete');
+});
 
 app.listen(port, () => {
     console.log('Server is running at port', port);
