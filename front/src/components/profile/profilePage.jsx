@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { FaFacebook, FaYoutube, FaTimes, FaLinkedin } from 'react-icons/fa';
+import { FaFacebook, FaYoutube, FaLinkedin } from 'react-icons/fa';
 import axios from 'axios';
 import { UserAvatar_large }  from '../Profile/userAvat';
+import x from '../../assets/twitter.png';
 
 function ProfilePage() {
 
@@ -72,7 +73,7 @@ function ProfilePage() {
     fontFamily: "Arial, sans-serif",
     textAlign: "left",
     color: "#fff",
-    background: "linear-gradient(to bottom, rgb(72, 101, 231) 90%, white 100%)",
+    background: "linear-gradient(to bottom, rgb(18, 19, 20) 90%, white 100%)",
     paddingTop: "130px",
     paddingLeft: "100px",
     paddingBottom: "30px",
@@ -140,7 +141,7 @@ function ProfilePage() {
             </a>) : ('')}
 
             {X ? (<a href={X}>
-              <FaTimes size={20}  style={{ color: 'black' }}/>
+              <img src={x}  style={{ width: 19, height: 19 }}/>
             </a>) : ('')}
 
             {linkedin ? (<a href={linkedin}>
