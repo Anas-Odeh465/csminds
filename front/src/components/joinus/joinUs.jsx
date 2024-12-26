@@ -70,6 +70,10 @@ const InstructorPage = () => {
           alert('Information has been submitted successfully!');
           navigate('/steps');
         }
+        else if(res.data === 'You are already Instructor'){
+          alert('You are already Instructor');
+          navigate('/steps');
+        }
         else {
           alert('Failed to submit information!');
         }

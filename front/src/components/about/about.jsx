@@ -23,7 +23,7 @@ const About = () => {
           <div className="w-full lg:w-1/2 max-w-2xl">
             <div className="space-y-6 px-4 lg:px-8">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center ">
-                About CSMind
+                About CS Mind
               </h1>
               <p className="text-base md:text-lg lg:text-xl leading-relaxed text-center  text-gray-700">
                 An e-learning platform. Our services vary from integrated interactive 
