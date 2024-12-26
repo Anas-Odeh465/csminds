@@ -14,6 +14,7 @@ const NavigationBar = () => {
   const [email, setEmail] = useState('');
   const [drop, setDrop] = useState(false);
   const [photo, setPhoto] = useState('');
+  const [instructor, setInstructor] = useState('false');
   const navigate = useNavigate();
 
   const categories = [
@@ -44,6 +45,7 @@ const NavigationBar = () => {
           setLastname(res1.data.LastName);
           setEmail(res1.data.Email);
           setPhoto(res1.data.photo);
+          setInstructor(res1.data.instructor);
         } else {
           
           const res2 = await axios.get('http://localhost:3307/api/users/to');
@@ -52,6 +54,7 @@ const NavigationBar = () => {
             setFirstname(res2.data.user.given_name);
             setLastname(res2.data.user.family_name);
             setEmail(res2.data.user.email);
+            setInstructor(res2.data.instructor);
           } else {
             setAuth(false);
           }
@@ -65,6 +68,24 @@ const NavigationBar = () => {
   
     fetchAuthStatus();
   }, [auth]);
+
+  useEffect(() => {
+    const fetchInstructor = async () => {
+      try{
+        const res = await axios.get('http://localhost:3307/check=instructors',{params: { email }});
+        if(res.data.instructors === 'true'){
+          setInstructor('true');
+          console.log('instructor: ', res.data.instructors);
+        }else{
+          setInstructor('false');
+          console.log('No instructor found');
+        }
+      }catch(err){
+        console.error("Error fetching instructor:", err);
+      }
+    }
+    fetchInstructor();
+  }, [instructor]);
 
   // on logout
   const handleLogout = () => {
@@ -120,17 +141,6 @@ const NavigationBar = () => {
       navigate('/editProfile');
     }
   };
-
-
-
-
-
-
-
-
-
-
-
 
 
   return (
@@ -204,7 +214,17 @@ const NavigationBar = () => {
                 <ShoppingCart className="w-5 h-5" />
               </a>
               <a href="http://localhost/AI_Chat_Page/AIminds_Chat.php" className="text-gray-600">AI Mind</a>
-             
+
+              {instructor === 'true' ?  ( 
+                <a href='#' className="text-gray-600 cursor-pointer"> Instructor</a>
+              ) : (
+                auth ? (
+                <a href="http://localhost:5173/become-instructor" className="text-gray-600">Teach with CS Mind</a>
+                ) : (
+                <a className="text-gray-600 cursor-pointer" onClick={() => navigate('/login', {state: 'login'})}>Teach with CS Mind</a>
+                )
+              )}
+
               {auth ? (
                 <div className="relative">
                   <button
@@ -231,7 +251,7 @@ const NavigationBar = () => {
                         {photo == 'No photo available' ? (<UserAvatar_medium firstName={firstname} />) : 
                         ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
                           style={{ width: '50px', display: 'block',
-                          height: '50px', borderRadius: '50%' }} />) }
+                          height: '50px', borderRadius: '50%' }} />)}
                           <p className="ml-1 pl-[5px]">{option}</p>
                         </div>
                         <p className="text-gray-500 text-xs mt-1 ml-[8px]">{email}</p>

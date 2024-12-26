@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { ChevronRight, ChevronLeft, BookOpen, Target, VideoIcon, CheckCircle } from 'lucide-react';
 
 const CourseCreationSteps = () => {
@@ -10,6 +12,64 @@ const CourseCreationSteps = () => {
   const [newPrerequisite, setNewPrerequisite] = useState('');
   const [outcomes, setOutcomes] = useState([]);
   const [newOutcome, setNewOutcome] = useState('');
+
+  const [auth, setAuth] = useState(false);
+  const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+
+  axios.defaults.withCredentials = true;
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      try {
+        const res1 = await axios.get('http://localhost:3307');
+        
+        if (res1.data && res1.data.FirstName) {
+          setAuth(true);
+          setEmail(res1.data.Email);
+        } else {
+          
+          
+          const res2 = await axios.get('http://localhost:3307/api/users/to');
+          if (res2.data && res2.data.user) {
+            setAuth(true);
+            setEmail(res2.data.user.email);
+          } else {
+            setAuth(false);
+          }
+          
+        }
+      } catch (err) {
+        console.error("Error fetching auth status:", err);
+        setAuth(false);
+      }
+    };
+  
+    fetchAuthStatus();
+    
+  }, [auth]);
+
+  const handelSubmitSteps = async () => {
+    try {
+        await axios.post('http://localhost:3307/steps/info', {
+          title: courseTitle,
+          category: selectedCategory,
+          level: selectedLevel,
+          prerequisites: prerequisites,
+          outcomes: outcomes
+        }).then(res => {
+          if (res.data === 'steps complete') {
+            alert('were done successfully');
+            navigate('/');
+            console.log(res.data);
+          } else {
+            alert('Failed to create course');
+          }
+        })
+    } catch (err) {
+      console.error("Error creating course:", err);
+      alert('Failed to create course');
+    }
+  }
 
   // cate
   const categories = [
@@ -41,7 +101,7 @@ const CourseCreationSteps = () => {
 
   const addPrerequisite = () => {
     if (newPrerequisite.trim()) {
-      setPrerequisites([...prerequisites, newPrerequisite.trim()]);
+      setPrerequisites([...prerequisites, newPrerequisite.trim()]); 
       setNewPrerequisite('');
     }
   };
@@ -54,159 +114,172 @@ const CourseCreationSteps = () => {
   };
 
   const renderStep = () => {
-    switch(currentStep) {
-      case 1:
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-6 h-6 text-blue-500" />
-              <h2 className="text-2xl font-bold">Choose a category</h2>
-            </div>
-            <div className="grid gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`text-left p-3 rounded-lg transition-all
-                    ${selectedCategory === category 
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-gray-100 hover:bg-gray-200'}`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-        );
-      case 2:
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">How about a working title?</h2>
-            <p className="text-gray-600">
-              It's ok if you can't think of a good title now. You can change it later.
-            </p>
-            <div className="relative">
-              <input
-                type="text"
-                value={courseTitle}
-                onChange={(e) => setCourseTitle(e.target.value)}
-                placeholder="e.g. Learn Photoshop CS6 from Scratch"
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                maxLength={60}
-              />
-              <div className="absolute right-3 top-3 text-sm text-gray-500">
-                {courseTitle.length}/60
-              </div>
-            </div>
-          </div>
-        );
-      case 3:
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <Target className="w-6 h-6 text-blue-500" />
-              <h2 className="text-2xl font-bold">Course Level & Prerequisites</h2>
-            </div>
-            
+    if(auth){
+      switch(currentStep) {
+        case 1:
+          return (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Select Course Level</h3>
-              <div className="grid gap-3">
-                {levels.map((level) => (
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-6 h-6 text-blue-500" />
+                <h2 className="text-2xl font-bold">Choose a category</h2>
+              </div>
+              <div className="grid gap-2">
+                {categories.map((category) => (
                   <button
-                    key={level.id}
-                    onClick={() => setSelectedLevel(level.id)}
-                    className={`p-4 rounded-lg border transition-all text-left
-                      ${selectedLevel === level.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-blue-200'}`}
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`text-left p-3 rounded-lg transition-all
+                      ${selectedCategory === category 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-gray-100 hover:bg-gray-200'}`}
                   >
-                    <div className="font-medium">{level.name}</div>
-                    <div className="text-sm text-gray-600">{level.description}</div>
+                    {category}
                   </button>
                 ))}
+                {/*selectedCategory && <span className='text-green-600'>{selectedCategory}</span>*/}
               </div>
             </div>
-
+          );
+        case 2:
+          return (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Course Prerequisites</h3>
-              <div className="space-y-2">
+              <h2 className="text-2xl font-bold">How about a working title?</h2>
+              <p className="text-gray-600">
+                It's ok if you can't think of a good title now. You can change it later.
+              </p>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={courseTitle}
+                  onChange={(e) => setCourseTitle(e.target.value)}
+                  placeholder="e.g. Learn Photoshop CS6 from Scratch"
+                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  maxLength={60}
+                />
+                <div className="absolute right-3 top-3 text-sm text-gray-500">
+                  {courseTitle.length}/60
+                </div>
+              </div>
+            </div>
+          );
+        case 3:
+          return (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <Target className="w-6 h-6 text-blue-500" />
+                <h2 className="text-2xl font-bold">Course Level & Requirements</h2>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Select Course Level</h3>
+                <div className="grid gap-3">
+                  {levels.map((level) => (
+                    <button
+                      key={level.id}
+                      onClick={() => setSelectedLevel(level.id)}
+                      className={`p-4 rounded-lg border transition-all text-left
+                        ${selectedLevel === level.id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-blue-200'}`}
+                    >
+                      <div className="font-medium">{level.name}</div>
+                      <div className="text-sm text-gray-600">{level.description}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Course Requirements</h3>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newPrerequisite}
+                      onChange={(e) => setNewPrerequisite(e.target.value)}
+                      placeholder="Add a Requirements..."
+                      className="flex-1 p-2 border rounded-lg"
+                    />
+                    <button
+                      onClick={addPrerequisite}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {prerequisites.map((prereq, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span>{prereq}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        case 4:
+          return (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <VideoIcon className="w-6 h-6 text-blue-500" />
+                <h2 className="text-2xl font-bold">Learning Outcomes</h2>
+              </div>
+              
+              <p className="text-gray-600">
+                What will students be able to do after completing your course? 
+                These learning outcomes will help students decide if your course is right for them.
+              </p>
+
+              <div className="space-y-4">
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    value={newPrerequisite}
-                    onChange={(e) => setNewPrerequisite(e.target.value)}
-                    placeholder="Add a prerequisite..."
+                    value={newOutcome}
+                    onChange={(e) => setNewOutcome(e.target.value)}
+                    placeholder="e.g., Create professional-quality logos using Photoshop"
                     className="flex-1 p-2 border rounded-lg"
                   />
                   <button
-                    onClick={addPrerequisite}
+                    onClick={addOutcome}
                     className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                   >
                     Add
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {prerequisites.map((prereq, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                  {outcomes.map((outcome, index) => (
+                    <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                       <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>{prereq}</span>
+                      <span>{outcome}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <VideoIcon className="w-6 h-6 text-blue-500" />
-              <h2 className="text-2xl font-bold">Learning Outcomes</h2>
-            </div>
-            
-            <p className="text-gray-600">
-              What will students be able to do after completing your course? 
-              These learning outcomes will help students decide if your course is right for them.
-            </p>
-
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newOutcome}
-                  onChange={(e) => setNewOutcome(e.target.value)}
-                  placeholder="e.g., Create professional-quality logos using Photoshop"
-                  className="flex-1 p-2 border rounded-lg"
-                />
-                <button
-                  onClick={addOutcome}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                >
-                  Add
-                </button>
-              </div>
-              <div className="space-y-2">
-                {outcomes.map((outcome, index) => (
-                  <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>{outcome}</span>
+                {outcomes.length === 0 && (
+                  <div className="text-center p-6 bg-gray-50 rounded-lg text-gray-500">
+                    Add at least 4 learning outcomes to help students understand what they'll learn
                   </div>
-                ))}
+                )}
               </div>
-              {outcomes.length === 0 && (
-                <div className="text-center p-6 bg-gray-50 rounded-lg text-gray-500">
-                  Add at least 4 learning outcomes to help students understand what they'll learn
-                </div>
-              )}
             </div>
-          </div>
-        );
-      default:
-        return null;
+          );
+        default:
+          return null;
+        
+      } 
     }
+    else{
+      <div className="w-screen text-center  mt-[250px] mb-[260px] ">
+          <h2 className="text-4xl font-bold text-gray-800 mt-[150px]">
+              Access denied 
+          </h2>
+      </div>
+    }       
   };
+  if(auth){
 
+  
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg mt-40 mb-16">
       <div className="border-b px-6 py-4 flex items-center justify-between">
@@ -229,18 +302,37 @@ const CourseCreationSteps = () => {
             <ChevronLeft className="w-4 h-4" />
             Previous
           </button>
-          <button
-            onClick={() => setCurrentStep(prev => Math.min(4, prev + 1))}
-            disabled={currentStep === 4}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
-          >
-            {currentStep === 4 ? 'Finish' : 'Continue'}
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          {currentStep === 4 ? (
+              <button
+              onClick={handelSubmitSteps}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+            >
+              {currentStep === 4 ? 'Finish' : 'Continue'}
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
+
+            <button
+              onClick={() => setCurrentStep(prev => Math.min(4, prev + 1))}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+              >
+              {currentStep === 4 ? 'Finish' : 'Continue'}
+              <ChevronRight className="w-4 h-4" />
+           </button>
+
+          )}
+          
         </div>
       </div>
     </div>
   );
+}else{
+  <div className="w-screen text-center  mt-[250px] mb-[260px] ">
+      <h2 className="text-4xl font-bold text-gray-800 mt-[150px]">
+          Access denied 
+      </h2>
+  </div>
+}
 };
 
 export default CourseCreationSteps;
