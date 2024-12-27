@@ -425,8 +425,6 @@ save_chat_toggle.addEventListener('change', () => {
     } else {
         localStorage.setItem('saveMode', 'disabled');
     }
-
-    
 });
 
 //add to recent------------------------------------------------------

@@ -20,7 +20,7 @@ const port = 3307;
 const app = express();
 app.use(cors(
     {
-        origin: 'http://localhost:5173',
+        origin: ['http://localhost:5173', 'http://localhost', 'http://localhost:3000'],
         methods: ['GET', 'POST'],
         credentials: true
     }
@@ -700,6 +700,86 @@ app.post('/steps/info', (req, res) => {
     console.log('Server got info: ', title, category, level, requirement, outcomes);
     return res.json('steps complete');
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.post('/api/save-message', (req, res) => {
+    const  email  = req.body.email;
+    const message = req.body.message;
+    console.log(`save-message-system got: ${email}\n message: `, message);
+    console.log('Query:', req.body);
+    const checkID = `SELECT id FROM registerd_user WHERE email=?`;
+    connection.query(checkID, [email], (err, data) => {
+        if(err){
+            return res.json("Error: " + err);
+        }
+        else if(data.length > 0){
+            const userID = data[0].id;
+            const insertID_and_message = `INSERT INTO ai_mind_recent_chat (user_ID, message) VALUES(?, ?)`;
+            connection.query(insertID_and_message, [userID, message], (err, data) => {
+                if(err){
+                    return res.json({ error: `Error: ${err}` });
+                }
+                else{
+                    return res.json({ success: "Message saved successfully" });
+                }
+            });
+        }
+        else{
+            return res.json({ error: "User not found" });
+        }
+    });
+    
+});
+
+app.post('/api/get-messages', (req, res) => {
+    const email = req.body.email;
+
+    console.log('get-messages: ', req.body);
+    if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+    }
+
+    const checkID = `SELECT id FROM registerd_user WHERE email=?`;
+    connection.query(checkID, [email], (err, data) => {
+        if (err) {
+            return res.json({ error: `Error: ${err}` });
+        } else if (data.length > 0) {
+            const userID = data[0].id;
+            const getMessagesQuery = `SELECT message FROM ai_mind_recent_chat WHERE user_ID=?`;
+            connection.query(getMessagesQuery, [userID], (err, messages) => {
+                if (err) {
+                    return res.json({ error: `Error: ${err}` });
+                } else {
+                    console.log('Messages from DB:', messages); 
+                    const allMessages = messages.map(message => message.message);
+                    console.log('All messages array:', allMessages);  
+                    return res.json({ allMessages });
+                }
+            });
+        } else {
+            return res.json({ error: "User not found" });
+        }
+    });
+});
+
+
+
+
 
 app.listen(port, () => {
     console.log('Server is running at port', port);
