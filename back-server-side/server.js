@@ -2,15 +2,11 @@ const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-const fs = require('fs');
-const handlebars = require('handlebars');
 const bcrypt = require('bcrypt');
 const cookie = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const passport = require('./google-oauth');
-const multer = require('multer');
-const path = require('path');
 require('dotenv').config();
 
 
@@ -109,35 +105,14 @@ const verfiyUser = (req, res, next) => {
 
 
 app.get('/', verfiyUser, (req, res) =>{
-    const email = req.email;
-    const sql_statement = `SELECT * FROM registerd_user WHERE email =?`;
-    connection.query(sql_statement, [email], (err, result) => {
-        if (err) {
-            return res.json("Error: " + err);
-        }
-        if(result.length > 0){
-            return res.json({
-                Status: "User authenticated successfully",
-                FirstName: req.firstname,
-                LastName: req.lastname,
-                Email: req.email || 'No email available',
-                photo: result[0].profileImage || 'No photo available',
-                headline: result[0].headline  ,
-                biography: result[0].biography ,
-                x: result[0].X ,
-                youtube: result[0].youtube ,
-                linkedin: result[0].linkedin ,
-                facebook: result[0].facebook
-            });
-        }
-        else{
-            res.json("User not found");
-        }
-    });    
+    return res.json({
+        Status: "User authenticated successfully",
+        FirstName: req.firstname,
+        LastName: req.lastname,
+        Email: req.email || 'No email available'
+    });
 })
 
-const htmlTemplate = fs.readFileSync('email-template.HTML', 'utf8');
-const template = handlebars.compile(htmlTemplate);
 
 
 app.post('/create-account', (req, res) => {
@@ -192,7 +167,7 @@ app.post('/verify-email-account', (req, res) => {
         return res.status(400).json({ error: 'Email is required' });
     }
 
-    const checkemail = `SELECT * FROM registerd_user WHERE email = '${email}'`;
+    const checkemail = `SELECT email FROM registerd_user WHERE email = '${email}'`;
     connection.query(checkemail, [email], (err, data) =>{
         if (err){
             return res.json("Error: " + err);
@@ -200,18 +175,11 @@ app.post('/verify-email-account', (req, res) => {
         if(data.length > 0){
             const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-            const emailData = {
-                name: `${data[0].FirstName + " " + data[0].LastName}`,
-                verification: `${verificationCode}`
-            };
-
-            const htmlToSend = template(emailData);
             const mailOptions = {
                 from: 'csminds0101@gmail.com', 
                 to: email,  
                 subject: 'Verify your email',
                 text: `Your verification code is: ${verificationCode}`,
-                html: htmlToSend,
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
@@ -269,28 +237,24 @@ app.post('/login', (req, res) => {
             return res.json("Error: " + err);
         }
         if(data.length > 0){
-            if(data[0].verification_state === 'Verifyed User'){
-                bcrypt.compare(password.toString(), data[0].password, (err, response) =>{
-                    if (err){
-                        return res.json("Error: " + err);
-                    }
-                    if(response){
-                        const firstName = data[0].FirstName;
-                        const lastName = data[0].LastName;
-    
-                        const token = jwt.sign({ firstName, lastName, email },'secretkey', { expiresIn: '1d' });
-                        res.cookie('token', token);
-                        console.log("Cookie token: ", token);
-                        return res.json(`Welcome ${firstName} ${lastName}`);
-                    }
-                    else{
-                        return res.json("Invalid email or password");
-                    }
-                });
-            }
-            else{
-                return res.json("Invalid Email!");
-            } 
+            bcrypt.compare(password.toString(), data[0].password, (err, response) =>{
+                if (err){
+                    return res.json("Error: " + err);
+                }
+                if(response){
+                    const firstName = data[0].FirstName;
+                    const lastName = data[0].LastName;
+
+                    const token = jwt.sign({ firstName, lastName, email },'secretkey', { expiresIn: '1d' });
+                    res.cookie('token', token);
+                    console.log("Cookie token: ", token);
+                    return res.json(`Welcome ${firstName} ${lastName}`);
+                }
+                else{
+                    return res.json("Invalid email or password");
+                }
+            });
+            
         }
         else{
             return res.json("Invalid email or password");
@@ -319,9 +283,6 @@ const transporter = nodemailer.createTransport({
     },
   });
 
-const htmlTemplate_pass = fs.readFileSync('password-template.HTML', 'utf8');
-const template_2 = handlebars.compile(htmlTemplate_pass);
-
 app.post('/forgot-password',(req, res) => {
 
     const { email } = req.body;
@@ -331,7 +292,7 @@ app.post('/forgot-password',(req, res) => {
         return res.status(400).json({ error: 'Email is required' });
     }
 
-    const checkemail = `SELECT * FROM registerd_user WHERE email = '${email}'`;
+    const checkemail = `SELECT email FROM registerd_user WHERE email = '${email}'`;
     connection.query(checkemail, [email], (err, data) =>{
         if (err){
             return res.json("Error: " + err);
@@ -339,19 +300,11 @@ app.post('/forgot-password',(req, res) => {
         if(data.length > 0){
             const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-            const emailData = {
-                name: `${data[0].FirstName + " " + data[0].LastName}`,
-                verification: `${verificationCode}`
-            };
-
-            const htmlToSend = template(emailData);
-
             const mailOptions = {
                 from: 'csminds0101@gmail.com', 
                 to: email,  
                 subject: 'Reset Password',
                 text: `Your verification code is: ${verificationCode}`,
-                html: htmlToSend
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
@@ -505,148 +458,6 @@ app.post('/reset-password', (req, res) => {
         }
     });
 });
-
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-      return cb(null, "./uploads/Images")
-    },
-    filename: function (req, file, cb) {
-      return cb(null, `${Date.now()}_${file.originalname}`)
-    }
-})
-  
-const upload = multer({storage})
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  
-
-app.post('/upload', upload.single('photo'), (req, res) => {
-    console.log('body: ',req.body)
-    console.log('email: ',req.body.email)
-    console.log('file: ',req.file) 
-
-    const imagePath = `/uploads/Images/${req.file.filename}`;
-    console.log('email request found : ', req.email)
-    const check_if_picture = `SELECT profileImage FROM registerd_user WHERE email=?`;
-    connection.query(check_if_picture, [req.body.email], (err, data) => {
-        if (err){
-            return res.json("Error: " + err);
-        }
-        else if(data.length > 0){
-            const update_picture = `UPDATE registerd_user SET profileImage =? WHERE email =?`;
-            connection.query(update_picture, [imagePath, req.body.email], (err, data) =>{
-                if (err){
-                    console.log("Error: " + err);
-                }
-                else{
-                    console.log("Profile picture updated successfully", imagePath);
-                }
-            });
-        }
-        else{
-            // here insert the picture into the database if the user not has already uploaded picture 
-            const insert_picture = `INSERT INTO registerd_user (profileImage) VALUES(?) WHERE email=?`;
-            connection.query(insert_picture, [imagePath, req.body.email], (err, data) =>{
-                if (err){
-                    console.log("Error: " + err);
-                }
-                else{
-                    console.log("Profile picture inserted successfully", imagePath);
-                }
-            });
-        }
-    });
-})
-
-app.post('/update/profile', (req, res) =>{
-    let {firstName, lastName, email, headline, biography,
-      X, youtube, linkedin, facebook } = req.body;
-
-    firstName = req.body[0];
-    lastName = req.body[1];
-    email = req.body[2];
-    headline = req.body[3];
-    biography = req.body[4];
-    X = req.body[5];
-    youtube = req.body[6];
-    linkedin = req.body[7];
-    facebook = req.body[8];
-
-    console.log(`Server got information to update profile from ${email}: `, {
-        firstName : firstName, 
-        lastName : lastName, 
-        headline : headline,
-        biography: biography,
-        X: X,
-        youtube: youtube,
-        linkedin: linkedin,
-        facebook: facebook
-    });
-
-    const checkProfile = `SELECT * FROM registerd_user WHERE email=?`;
-    connection.query(checkProfile, [email], (err, data) => {
-        if (err){
-            return res.json("Error: " + err);
-        }
-        else if (data.length > 0){
-            const updateProfile = `UPDATE registerd_user SET FirstName=?, LastName=?, headline=?, biography=?,  X=?, youtube=?, linkedin=?, facebook=? WHERE email=?`;
-            connection.query(updateProfile, [firstName, lastName, headline, biography, X, youtube, linkedin, facebook, email], (err, data) =>{
-                if (err){
-                    return res.json("Error: " + err);
-                }
-                else{
-                    return res.json("Profile updated successfully");
-                }
-            });
-        }
-        else{
-            return res.json("User not found");
-        }
-    });
-});
-
-app.post('/Instuctor/info', (req, res) => {
-    const Name = req.body[0];
-    const WorkEmail = req.body[1];
-    const CS_Minds_Orginal_email = req.body[2];
-    const Role = req.body[3];
-    const Number = req.body[4];
-
-    console.log(`Server got information to set instructor info from ${CS_Minds_Orginal_email}: `, {
-        Name : Name,
-        WorkEmail : WorkEmail,
-        CS_Minds_Orginal_email : CS_Minds_Orginal_email,
-        Role : Role,
-        Number : Number
-    });
-
-    const checkID = `SELECT id FROM registerd_user WHERE email=?`;
-    connection.query(checkID, [CS_Minds_Orginal_email], (err, data) => {
-        if (err){
-            return res.json("Error: " + err);
-        }
-        else if (data.length > 0){
-            const userID = data[0].id;
-            if (WorkEmail !== ''){
-                const Insert_Instructor = `INSERT INTO instructors 
-                (user_ID, instructor_name, work_Email, role, number_Learners) VALUES(?,?,?,?,?)`;
-                connection.query(Insert_Instructor, [userID, Name, WorkEmail, Role, Number], (err, data) =>{
-                    if (err){
-                        return res.json("Error: " + err);
-                    }
-                    else{
-                        return res.json("Instructor info inserted successfully");
-                    }
-                });
-            }
-            else{
-
-            } 
-        }
-        else{
-            return res.json("User not found");
-        }
-    })
-    
-})
 
 app.listen(port, () => {
     console.log('Server is running at port', port);

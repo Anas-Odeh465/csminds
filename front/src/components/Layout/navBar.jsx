@@ -3,7 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import img from '../../assets/5.svg';
-import { UserAvatar, UserAvatarSmall, UserAvatar_medium }  from '../Profile/userAvat';
+import { UserAvatar, UserAvatarSmall }  from '../Profile/userAvat';
 
 const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +13,6 @@ const NavigationBar = () => {
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [drop, setDrop] = useState(false);
-  const [photo, setPhoto] = useState('');
   const navigate = useNavigate();
 
   const categories = [
@@ -43,7 +42,6 @@ const NavigationBar = () => {
           setFirstname(res1.data.FirstName);
           setLastname(res1.data.LastName);
           setEmail(res1.data.Email);
-          setPhoto(res1.data.photo);
         } else {
           
           const res2 = await axios.get('http://localhost:3307/api/users/to');
@@ -107,17 +105,13 @@ const NavigationBar = () => {
   const handleProfileClicked = (option) => {
     if (option === firstname + " "+  lastname) {
       setDrop(false); 
-      navigate('/publicProfile');
+      navigate('/profileView');
     } else if (option === "Logout") {
       handleLogout();
       setDrop(false); 
     }else if (option === "Public profile") {
       setDrop(false); 
-      navigate(`/publicProfile`);
-    }
-    else if (option === "Edit profile"){
-      setDrop(false); 
-      navigate('/editProfile');
+      navigate(`/profileView`);
     }
   };
 
@@ -200,10 +194,10 @@ const NavigationBar = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-6">
-              <a href="#" className="text-gray-600">
+              <a href="#" className="hover:text-gray-600">
                 <ShoppingCart className="w-5 h-5" />
               </a>
-              <a href="http://localhost/AI_Chat_Page/AIminds_Chat.php" className="text-gray-600">AI Mind</a>
+              <a href="http://localhost/AI_Chat_Page/AIminds_Chat.php" className="hover:text-gray-600">AI Minds</a>
              
               {auth ? (
                 <div className="relative">
@@ -211,11 +205,8 @@ const NavigationBar = () => {
                     onClick={() => setDrop(!drop)} 
                     className="flex items-center space-x-1 hover:text-gray-600"
                   >
-                     {photo == 'No photo available' ? (<UserAvatar firstName={firstname} />) : 
-                    ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
-                      style={{ width: '30px', display: 'block',
-                      height: '30px', borderRadius: '50%' }} />) }
                      
+                     <UserAvatar firstName={firstname} />
                       
                     <span style={{paddingLeft: '10px'}}>{firstname} {lastname}</span>
                   </button>
@@ -228,13 +219,10 @@ const NavigationBar = () => {
                        className="w-full text-left px-4 py-2 hover:bg-gray-50">
 
                         <div className="flex items-center">
-                        {photo == 'No photo available' ? (<UserAvatar_medium firstName={firstname} />) : 
-                        ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
-                          style={{ width: '50px', display: 'block',
-                          height: '50px', borderRadius: '50%' }} />) }
-                          <p className="ml-1 pl-[5px]">{option}</p>
+                          <UserAvatarSmall firstName={firstname} className="flex-shrink-0" />
+                          <p className="ml-1">{option}</p>
                         </div>
-                        <p className="text-gray-500 text-xs mt-1 ml-[8px]">{email}</p>
+                        <p className="text-gray-500 text-xs mt-1">{email}</p>
                      </button>
                      ))} 
                       <hr />
@@ -290,13 +278,13 @@ const NavigationBar = () => {
                 <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-2">
                   <button
                     onClick={() => navigate('/login', {state: 'login'})}
-                    className="px-6 py-2 rounded-full border border-blue-900 hover:bg-gray-200"
+                    className="px-6 py-2 rounded-full border border-gray-800 hover:bg-gray-100"
                   >
                     Login
                   </button>
                   <button
                     onClick={() => navigate('/login', {state: 'signup'})}
-                    className="px-6 py-2 rounded-full bg-blue-800 text-white hover:bg-gray-700"
+                    className="px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700"
                     id="Sign-Up"
                   >
                     Sign Up

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, BookOpen, Target, VideoIcon, CheckCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, BookOpen, Target, VideoIcon, CheckCircle, Upload, DollarSign } from 'lucide-react';
 
 const CourseCreationSteps = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -10,27 +10,23 @@ const CourseCreationSteps = () => {
   const [newPrerequisite, setNewPrerequisite] = useState('');
   const [outcomes, setOutcomes] = useState([]);
   const [newOutcome, setNewOutcome] = useState('');
-
-  // cate
+  const [videos, setVideos] = useState([]);
+  const [price, setPrice] = useState('');
   const categories = [
     'Development',
-    'Data science',
+    'Business',
+    'Finance & Accounting',
     'IT & Software',
+    'Office Productivity',
     'Personal Development',
     'Design',
     'Marketing',
-    'Business',
-    'Finance & Accounting',
-    'Office Productivity',
-  ];
-
-  /*
-  'Lifestyle',
+    'Lifestyle',
     'Photography & Video',
     'Health & Fitness',
     'Music',
     'Teaching & Academics'
-  */
+  ];
 
   const levels = [
     { id: 'beginner', name: 'Beginner Level', description: 'No prior knowledge required' },
@@ -52,7 +48,20 @@ const CourseCreationSteps = () => {
       setNewOutcome('');
     }
   };
+  const handleVideoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const newVideos = files.map(file => ({
+      file,
+      name: file.name,
+      size: (file.size / (1024 * 1024)).toFixed(2),
+      progress: 0
+    }));
+    setVideos([...videos, ...newVideos]);
+  };
 
+  const removeVideo = (index) => {
+    setVideos(videos.filter((_, i) => i !== index));
+  };
   const renderStep = () => {
     switch(currentStep) {
       case 1:
@@ -201,6 +210,71 @@ const CourseCreationSteps = () => {
               )}
             </div>
           </div>
+        )
+          case 5:
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <Upload className="w-6 h-6 text-blue-500" />
+              <h2 className="text-2xl font-bold">Upload Course Content</h2>
+            </div>
+
+            <div className="space-y-4">
+              <label className="block p-6 border-2 border-dashed rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="file"
+                  multiple
+                  accept="video/*"
+                  onChange={handleVideoUpload}
+                  className="hidden"
+                />
+                <div className="text-center">
+                  <VideoIcon className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-600">Drop your video files here or click to browse</p>
+                </div>
+              </label>
+
+              <div className="space-y-2">
+                {videos.map((video, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <VideoIcon className="w-4 h-4 text-blue-500" />
+                      <div>
+                        <div className="font-medium">{video.name}</div>
+                        <div className="text-sm text-gray-500">{video.size} MB</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removeVideo(index)}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-6 h-6 text-blue-500" />
+                <h2 className="text-2xl font-bold">Set Course Price</h2>
+              </div>
+              
+              <div className="relative">
+                <input
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="Enter course price"
+                  min="0"
+                  step="0.01"
+                  className="w-full p-3 pl-8 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="absolute left-3 top-3 text-gray-500">$</span>
+              </div>
+            </div>
+          </div>
         );
       default:
         return null;
@@ -210,12 +284,13 @@ const CourseCreationSteps = () => {
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg mt-40 mb-16">
       <div className="border-b px-6 py-4 flex items-center justify-between">
-        <div className="text-lg font-semibold">Step {currentStep} of 4</div>
+        <div className="text-lg font-semibold">Step {currentStep} of 5</div>
         <div className="text-sm text-gray-500">
           {currentStep === 1 && 'Select a category'}
           {currentStep === 2 && 'Create a title'}
           {currentStep === 3 && 'Set level & prerequisites'}
           {currentStep === 4 && 'Define learning outcomes'}
+          {currentStep === 5 && 'Upload videos & set price'}
         </div>
       </div>
       <div className="p-6">
@@ -230,11 +305,11 @@ const CourseCreationSteps = () => {
             Previous
           </button>
           <button
-            onClick={() => setCurrentStep(prev => Math.min(4, prev + 1))}
-            disabled={currentStep === 4}
+            onClick={() => setCurrentStep(prev => Math.min(5, prev + 1))}
+            disabled={currentStep === 5}
             className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
           >
-            {currentStep === 4 ? 'Finish' : 'Continue'}
+            {currentStep === 5 ? 'Finish' : 'Continue'}
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

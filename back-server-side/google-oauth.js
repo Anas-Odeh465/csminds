@@ -30,7 +30,7 @@ function(request, accessToken, refreshToken, profile, done) {
 
   // Check if family_name is undefined and assign 'undefined' if so
   if (!family_name) {
-    family_name = '';
+    family_name = 'undefined';
   }
 
   const check_user_exist = `SELECT * FROM registerd_user WHERE email=?`;

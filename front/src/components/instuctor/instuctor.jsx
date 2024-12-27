@@ -1,40 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import {useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const JoinInstructorSection = () => {
-  const [auth, setAuth] = useState(false);
-  const navigate = useNavigate();
-
-  axios.defaults.withCredentials = true;
-  useEffect(() => {
-    const fetchAuthStatus = async () => {
-      try {
-        const res1 = await axios.get('http://localhost:3307');
-        
-        if (res1.data && res1.data.FirstName) {
-          setAuth(true);
-        } else {
-          
-          const res2 = await axios.get('http://localhost:3307/api/users/to');
-          if (res2.data && res2.data.user) {
-            setAuth(true);
-          } else {
-            setAuth(false);
-          }
-          
-        }
-      } catch (err) {
-        console.error("Error fetching auth status:", err);
-        setAuth(false);
-      }
-    };
-  
-    fetchAuthStatus();
-    
-  }, [auth]);
-
-
   const instructorBenefits = [
     'Flexible Schedule',
     'Global Reach',
@@ -66,21 +33,12 @@ const JoinInstructorSection = () => {
       </div>
 
       <div className="text-center">
-        {auth ? (
         <Link 
           to="/become-instructor" 
           className="inline-block bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg"
         >
           Become an Instructor
         </Link>
-        ) : (
-          <Link 
-          onClick={navigate('/login', {state: 'login'})}
-          className="inline-block bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg"
-        >
-          Login and join us as Instructor
-        </Link>
-        )}
       </div>
     </div>
   );

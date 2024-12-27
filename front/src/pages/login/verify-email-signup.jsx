@@ -22,17 +22,20 @@ const AccountEmailVerification = () => {
       }
     }
   };
+
   const handleSendEmail = () => {
-    if (email) {
-        axios.post('http://localhost:3307/verify-email-account', { email })
+    if (email !== "") {
+        axios.post('http://localhost:3307/verify-email-account', email)
         .then(res => {
-            alert(res.data);
+            if (res.data === "Invalid email or password") {
+                alert(res.data); 
+            } else {
+                alert(res.data);
+            }
         })
-        .catch(err => console.error('Error response:', err.response?.data || err.message));
-    } else {
-        alert('Email is not available.');
-    }
-};
+        .catch(err => console.error(err));
+    } 
+  };
 
   const enteredCode = code.join('');
   const handleVerify = () => {
