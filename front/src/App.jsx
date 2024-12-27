@@ -1,3 +1,10 @@
+{/* Important layout must specified based on the page */}
+
+import DefaultLayout from './defaultLayout';
+import NoLayout from './noLayout';
+
+{/* ------------------------------------------------- */}
+
 import NavigationBar from './components/Layout/navBar';
 import './App.css';
 import HomePage from './pages/home/home';
@@ -15,42 +22,28 @@ import CourseCreationSteps from './components/steps/steps';
 import EditProfilePage from './components/profile/editProfile';
 import ProfilePage from './components/profile/profilePage';
 
+
 function App() {
-  return (
-    
+  return ( 
     <Router>
-
-    <div className="flex flex-col min-h-screen">
-
-      {/* Header / Navigation */}
-      <NavigationBar />
-
-      {/* Main Content */}
-      <main className="flex-grow">
         <Routes>
-          
-          <Route path="/" element={<HomePage />} />
-          <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/become-instructor" element={<BecomeInstructor />} />
-          <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/useravtart" element={<UserAvatar />} />
-          <Route path="/useravtart2" element={<UserAvatarSmall />} />
-          <Route path="/passCode" element={<EmailVerification />} />
-          <Route path="/resetpass" element={<ResetPassword />} />
-          <Route path="/Aemailverify" element={<AccountEmailVerification />} />
-          <Route path="/steps" element={<CourseCreationSteps />} />
-          <Route path="/editProfile" element={<EditProfilePage />} />
-          <Route path="/publicProfile" element={<ProfilePage />} />
+           
+            <Route path="/" element={<DefaultLayout> <HomePage /> </DefaultLayout>} />
+            <Route path="/courses" element={<DefaultLayout> <CoursesPage /> </DefaultLayout>} />
+            <Route path="/become-instructor" element={<DefaultLayout> <BecomeInstructor /> </DefaultLayout>} />
+            <Route path="/courses/:courseId" element={<DefaultLayout> <CourseDetailsPage /> </DefaultLayout>} />
+            <Route path="/login" element={<DefaultLayout> <AuthPage /> </DefaultLayout>} />
+            <Route path="/useravtart" element={<DefaultLayout> <UserAvatar /> </DefaultLayout>} />
+            <Route path="/useravtart2" element={<DefaultLayout> <UserAvatarSmall /> </DefaultLayout>} />
+            <Route path="/passCode" element={<DefaultLayout> <EmailVerification /> </DefaultLayout>} />
+            <Route path="/resetpass" element={<DefaultLayout> <ResetPassword /> </DefaultLayout>} />
+            <Route path="/Aemailverify" element={<DefaultLayout> <AccountEmailVerification /> </DefaultLayout>} />
+            <Route path="/steps" element={<DefaultLayout> <CourseCreationSteps /> </DefaultLayout>} />
+            <Route path="/editProfile" element={<DefaultLayout> <EditProfilePage /> </DefaultLayout>} />
+            <Route path="/publicProfile" element={<DefaultLayout> <ProfilePage /> </DefaultLayout>} />
+
 
         </Routes>
-      </main>
-
-      {/* Footer */}
-      <Footer />
-
-    </div>
-
   </Router>
   );
 }
