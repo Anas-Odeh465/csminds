@@ -73,7 +73,6 @@ const CourseCreationSteps = () => {
     }
   }
 
-  // cate
   const categories = [
     'Development',
     'Data science',
