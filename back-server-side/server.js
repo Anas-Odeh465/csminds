@@ -27,6 +27,7 @@ app.use(cors(
 ));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookie());
 
 const connection = mysql.createConnection({
@@ -691,19 +692,67 @@ app.post('/Instuctor/info', (req, res) => {
     
 })
 
-app.post('/steps/info', (req, res) => {
+const storage_video = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, path.join(__dirname, "uploads/Videos"));
+    },
+    filename: function (req, file, cb) {
+      return cb(null, `${Date.now()}_${file.originalname}`)
+    }
+})
+  
+const upload_video = multer({storage: storage_video})
+
+
+app.post('/uploads/course=video', upload_video.single('video') ,(req, res) => {
+    const email = req.body.email;
     const title = req.body.title;
     const category = req.body.category;
     const level = req.body.level;
-    const requirement = req.body.prerequisites;
+    const requirements = req.body.prerequisites;
     const outcomes = req.body.outcomes;
-    console.log('Server got info: ', title, category, level, requirement, outcomes);
+    const price = req.body.price;
+
+    console.log('\n================================\n');
+    console.log('Title:', req.body.title); 
+    console.log('Category:', req.body.category); 
+    console.log('Level:', req.body.level);
+    console.log('Prerequisites:', req.body.prerequisites); 
+    console.log('Outcomes:', req.body.outcomes); 
+    console.log('Price:', req.body.price); 
+    console.log('Email: ', req.body.email);
+    console.log('file: \n',req.file); 
+
+    const videoPath = `/uploads/Videos/${req.file.filename}`;
+    console.log('Saved video path:', videoPath);
+
+    let outcomeArray = [];
+    let prerequisitesArray = [];
+
+    if (typeof outcomes === 'string') {
+      outcomeArray = outcomes.split(','); 
+    } else {
+      outcomeArray = Array.isArray(outcomes) ? outcomes : [outcomes];
+    }
+     
+    outcomeArray.forEach(outcome => {
+      console.log('Outcome:', outcome);
+    });
+
+    if (typeof requirements === 'string') {
+        prerequisitesArray = requirements.split(',');  
+    } else {
+        prerequisitesArray = Array.isArray(requirements) ? requirements : [requirements];
+    }
+
+    console.log('Prerequisites as array:', prerequisitesArray);
+
+    prerequisitesArray.forEach(prerequisite => {
+       console.log('Prerequisite:', prerequisite);
+    });
+
     return res.json('steps complete');
 });
-
-
-
-
 
 
 

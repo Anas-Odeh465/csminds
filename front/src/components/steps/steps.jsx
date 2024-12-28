@@ -13,10 +13,12 @@ const CourseCreationSteps = () => {
   const [outcomes, setOutcomes] = useState([]);
   const [newOutcome, setNewOutcome] = useState('');
   const [videos, setVideos] = useState([]);
+  const [courseFile, setCourseFile] = useState('');
+  const [videofile, setVideoFile] = useState('');
   const [price, setPrice] = useState('');
-
   const [auth, setAuth] = useState(false);
   const [email, setEmail] = useState('');
+
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
@@ -29,8 +31,7 @@ const CourseCreationSteps = () => {
           setAuth(true);
           setEmail(res1.data.Email);
         } else {
-          
-          
+            
           const res2 = await axios.get('http://localhost:3307/api/users/to');
           if (res2.data && res2.data.user) {
             setAuth(true);
@@ -50,30 +51,6 @@ const CourseCreationSteps = () => {
     
   }, [auth]);
 
-  const handelSubmitSteps = async () => {
-    try {
-        await axios.post('http://localhost:3307/steps/info', {
-          title: courseTitle,
-          category: selectedCategory,
-          level: selectedLevel,
-          prerequisites: prerequisites,
-          outcomes: outcomes
-        }).then(res => {
-          if (res.data === 'steps complete') {
-            alert('were done successfully');
-            navigate('/');
-            console.log(res.data);
-          } else {
-            alert('Failed to create course');
-          }
-        })
-    } catch (err) {
-      console.error("Error creating course:", err);
-      alert('Failed to create course');
-    }
-  }
-
-  // cate
   const categories = [
     'Development',
     'Data science',
@@ -85,14 +62,6 @@ const CourseCreationSteps = () => {
     'Finance & Accounting',
     'Office Productivity',
   ];
-
-  /*
-  'Lifestyle',
-    'Photography & Video',
-    'Health & Fitness',
-    'Music',
-    'Teaching & Academics'
-  */
 
   const levels = [
     { id: 'beginner', name: 'Beginner Level', description: 'No prior knowledge required' },
@@ -114,14 +83,15 @@ const CourseCreationSteps = () => {
       setNewOutcome('');
     }
   };
-
+ 
   const handleVideoUpload = (e) => {
     const files = Array.from(e.target.files);
     const newVideos = files.map(file => ({
       file,
       name: file.name,
       size: (file.size / (1024 * 1024)).toFixed(2),
-      progress: 0
+      progress: 0,
+      url: URL.createObjectURL(file)
     }));
     setVideos([...videos, ...newVideos]);
   };
@@ -129,6 +99,38 @@ const CourseCreationSteps = () => {
   const removeVideo = (index) => {
     setVideos(videos.filter((_, i) => i !== index));
   };
+
+  const handelSubmitSteps = async () => {
+    const formData = new FormData();
+      formData.append('title', courseTitle);
+      formData.append('category', selectedCategory);
+      formData.append('level', selectedLevel);
+      formData.append('prerequisites', prerequisites);
+      formData.append('outcomes', outcomes);
+      formData.append('price', price);
+      formData.append('email', email);
+      formData.append('video', videofile);
+      setCourseFile(formData);
+
+    try {
+        
+        if (courseFile !== '') {
+          await axios.post('http://localhost:3307/uploads/course=video', courseFile)
+          .then(res => {
+            if (res.data === 'steps complete') {
+              alert('were done successfully');
+              navigate('/become-instructor');
+              console.log(res.data);
+            } else {
+              alert('Failed to create course');
+            }
+          }).catch(err => {console.log(err)});
+          }
+    } catch (err) {
+      console.error("Error creating course:", err);
+      alert('Failed to create course');
+    }
+  }
 
   const renderStep = () => {
     if(auth){
@@ -293,9 +295,10 @@ const CourseCreationSteps = () => {
               <label className="block p-6 border-2 border-dashed rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input
                   type="file"
+                  name="video"
                   multiple
                   accept="video/*"
-                  onChange={handleVideoUpload}
+                  onChange={(e) => {setVideoFile(e.target.files[0]); handleVideoUpload(e);}}
                   className="hidden"
                 />
                 <div className="text-center">
@@ -334,11 +337,11 @@ const CourseCreationSteps = () => {
               <div className="relative">
                 <input
                   type="number"
+                  name="price"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="Enter course price"
                   min="0"
-                  max="20"
                   step="0.01"
                   className="w-full p-3 pl-8 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -361,43 +364,41 @@ const CourseCreationSteps = () => {
     }       
   };
   if(auth){
-
-  
-  return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg mt-40 mb-16">
-      <div className="border-b px-6 py-4 flex items-center justify-between">
-        <div className="text-lg font-semibold">Step {currentStep} of 5</div>
-        <div className="text-sm text-gray-500">
-          {currentStep === 1 && 'Select a category'}
-          {currentStep === 2 && 'Create a title'}
-          {currentStep === 3 && 'Set level & prerequisites'}
-          {currentStep === 4 && 'Define learning outcomes'}
-          {currentStep === 5 && 'Upload videos & set price'}
+    return (
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg mt-40 mb-16">
+        <div className="border-b px-6 py-4 flex items-center justify-between">
+          <div className="text-lg font-semibold">Step {currentStep} of 5</div>
+          <div className="text-sm text-gray-500">
+            {currentStep === 1 && 'Select a category'}
+            {currentStep === 2 && 'Create a title'}
+            {currentStep === 3 && 'Set level & prerequisites'}
+            {currentStep === 4 && 'Define learning outcomes'}
+            {currentStep === 5 && 'Upload videos & set price'}
+          </div>
+        </div>
+        <div className="p-6">
+          {renderStep()}
+          <div className="mt-6 flex justify-between">
+            <button
+              onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+              disabled={currentStep === 1}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </button>
+            <button
+              onClick={currentStep === 5 ? (handelSubmitSteps)
+                : (() => setCurrentStep(prev => Math.min(5, prev + 1)))}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+            >
+              {currentStep === 5 ? 'Finish' : 'Continue'}
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
-      <div className="p-6">
-        {renderStep()}
-        <div className="mt-6 flex justify-between">
-          <button
-            onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-            disabled={currentStep === 1}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Previous
-          </button>
-          <button
-            onClick={() => setCurrentStep(prev => Math.min(5, prev + 1))}
-            disabled={currentStep === 5}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
-          >
-            {currentStep === 5 ? 'Finish' : 'Continue'}
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }else{
   <div className="w-screen text-center  mt-[250px] mb-[260px] ">
       <h2 className="text-4xl font-bold text-gray-800 mt-[150px]">
