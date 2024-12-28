@@ -82,6 +82,7 @@ const CourseCard = ({ title, description, image, url }) => {
   );
 };
 
+// here begin 
 const CourseCatalog = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
 

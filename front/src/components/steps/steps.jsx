@@ -366,7 +366,7 @@ const CourseCreationSteps = () => {
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg mt-40 mb-16">
       <div className="border-b px-6 py-4 flex items-center justify-between">
-        <div className="text-lg font-semibold">Step {currentStep} of 4</div>
+        <div className="text-lg font-semibold">Step {currentStep} of 5</div>
         <div className="text-sm text-gray-500">
           {currentStep === 1 && 'Select a category'}
           {currentStep === 2 && 'Create a title'}
