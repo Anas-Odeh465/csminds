@@ -4,6 +4,8 @@ import axios from 'axios';
 
 const JoinInstructorSection = () => {
   const [auth, setAuth] = useState(false);
+  const [instructor, setInstructor] = useState('false');
+  const [email, setEmail] = useState('');
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
@@ -14,11 +16,11 @@ const JoinInstructorSection = () => {
         
         if (res1.data && res1.data.FirstName) {
           setAuth(true);
-        } else {
-          
-          
+          setEmail(res1.data.Email);
+        } else { 
           const res2 = await axios.get('http://localhost:3307/api/users/to');
           if (res2.data && res2.data.user) {
+            setEmail(res2.data.user.email);
             setAuth(true);
           } else {
             setAuth(false);
@@ -34,6 +36,25 @@ const JoinInstructorSection = () => {
     fetchAuthStatus();
     
   }, [auth]);
+
+  // check if Instructors are available
+  useEffect(() => {
+    const fetchInstructor = async () => {
+      try{
+        const res = await axios.get('http://localhost:3307/check=instructors',{params: { email }});
+        if(res.data.instructors === 'true'){
+          setInstructor('true');
+          console.log('instructor: ', res.data.instructors);
+        }else{
+          setInstructor('false');
+          console.log('No instructor found');
+        }
+      }catch(err){
+        console.error("Error fetching instructor:", err);
+      }
+    }
+    fetchInstructor();
+  }, [instructor]);
 
 
   const instructorBenefits = [
@@ -68,19 +89,19 @@ const JoinInstructorSection = () => {
 
       <div className="text-center">
         {auth ? (
-        <Link 
-          to="/become-instructor" 
-          className="inline-block bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg"
-        >
-          Become an Instructor
-        </Link>
+          instructor === 'true' ? ( 
+            <Link to="/become-instructor" className="inline-block bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg">
+                Instructor Dashboard 
+            </Link>
+          ) : (
+            <Link to="/become-instructor" className="inline-block bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg">
+                Become an Instructor
+            </Link>
+          )
         ) : (
-          <Link 
-          onClick={navigate('/login', {state: 'login'})}
-          className="inline-block bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg"
-        >
-          Login and join us as Instructor
-        </Link>
+          <Link onClick={navigate('/login', {state: 'login'})}className="inline-block bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg">
+              Login and join us as Instructor
+          </Link>
         )}
       </div>
     </div>

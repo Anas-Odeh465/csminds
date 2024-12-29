@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronRight, ChevronLeft, BookOpen, Target, Upload, DollarSign, VideoIcon, CheckCircle } from 'lucide-react';
+import { ChevronRight, ImageIcon,ChevronLeft, BookOpen, Target, Upload, DollarSign, VideoIcon, CheckCircle } from 'lucide-react';
 
 const CourseCreationSteps = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -18,6 +18,8 @@ const CourseCreationSteps = () => {
   const [price, setPrice] = useState('');
   const [auth, setAuth] = useState(false);
   const [email, setEmail] = useState('');
+  const [theNewPhoto, setTheNewPhoto] = useState([]);
+  const [showTempPic, setShowTempPic] = useState('');
 
   const navigate = useNavigate();
 
@@ -52,14 +54,14 @@ const CourseCreationSteps = () => {
   }, [auth]);
 
   const categories = [
-    'Development',
-    'Data science',
+    'Web Development',
+    'Mobile Development',
+    'Programming Languages',
+    'Game Development',
     'IT & Software',
-    'Personal Development',
     'Design',
     'Marketing',
     'Business',
-    'Finance & Accounting',
     'Office Productivity',
   ];
 
@@ -98,6 +100,24 @@ const CourseCreationSteps = () => {
 
   const removeVideo = (index) => {
     setVideos(videos.filter((_, i) => i !== index));
+    setVideoFile('')
+  };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const newPicture = files.map(file => ({
+      file,
+      name: file.name,
+      size: (file.size / (1024 * 1024)).toFixed(2),
+      progress: 0,
+      url: URL.createObjectURL(file)
+    }));
+    setTheNewPhoto([...theNewPhoto, ...newPicture]);
+  }
+
+  const removePicture = (index) => {
+    setTheNewPhoto(theNewPhoto.filter((_, i) => i !== index));
+    setShowTempPic('')
   };
 
   const handelSubmitSteps = async () => {
@@ -110,22 +130,20 @@ const CourseCreationSteps = () => {
       formData.append('price', price);
       formData.append('email', email);
       formData.append('video', videofile);
-      setCourseFile(formData);
+      formData.append('coursePic', showTempPic);
 
-    try {
-        
-        if (courseFile !== '') {
-          await axios.post('http://localhost:3307/uploads/course=video', courseFile)
-          .then(res => {
-            if (res.data === 'steps complete') {
-              alert('were done successfully');
-              navigate('/become-instructor');
-              console.log(res.data);
-            } else {
-              alert('Failed to create course');
-            }
-          }).catch(err => {console.log(err)});
+    try {  
+        await axios.post('http://localhost:3307/uploads/course=video', formData, {
+          headers: {'Content-Type': 'multipart/form-data',}})
+        .then(res => {
+          if (res.data === 'course uploaded successfully') {
+            alert('course uploaded successfully');
+            navigate('/become-instructor');
+            console.log(res.data);
+          } else {
+            alert('Failed to create course: ' + res.data);
           }
+        }).catch(err => {console.log(err)});
     } catch (err) {
       console.error("Error creating course:", err);
       alert('Failed to create course');
@@ -133,6 +151,17 @@ const CourseCreationSteps = () => {
   }
 
   const renderStep = () => {
+    const fileInputStyle = {
+      padding: '10px',
+      backgroundColor: '#f0f0f0',
+      border: '1px solid #ccc',
+      borderRadius: '8px',
+      fontSize: '16px',
+      cursor: 'pointer',
+    };
+
+    let typo = '';
+
     if(auth){
       switch(currentStep) {
         case 1:
@@ -183,12 +212,11 @@ const CourseCreationSteps = () => {
           );
         case 3:
           return (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Target className="w-6 h-6 text-blue-500" />
                 <h2 className="text-2xl font-bold">Course Level & Requirements</h2>
               </div>
-              
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Select Course Level</h3>
                 <div className="grid gap-3">
@@ -227,6 +255,9 @@ const CourseCreationSteps = () => {
                     </button>
                   </div>
                   <div className="space-y-2">
+                    <div className="text-center p-2 bg-gray-50 rounded-lg text-gray-500">
+                      Add at maximum 4 learning Requirements to help students what they'll need
+                    </div>
                     {prerequisites.map((prereq, index) => (
                       <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                         <CheckCircle className="w-4 h-4 text-green-500" />
@@ -277,7 +308,7 @@ const CourseCreationSteps = () => {
                 </div>
                 {outcomes.length === 0 && (
                   <div className="text-center p-6 bg-gray-50 rounded-lg text-gray-500">
-                    Add at least 4 learning outcomes to help students understand what they'll learn
+                    Add at maximum 4 learning outcomes to help students understand what they'll learn
                   </div>
                 )}
               </div>
@@ -327,26 +358,73 @@ const CourseCreationSteps = () => {
                 ))}
               </div>
             </div>
-
-            <div className="space-y-4">
+            <div className="space-y-4 ">
+            <label className="block p-6 border-2 border-dashed rounded-lg hover:bg-gray-50 cursor-pointer text-center">
+              <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />course view picture
+              <input
+                id="courseImage"
+                type="file"
+                name='coursePic'
+                accept="image/*"
+                onChange={(e) => {setShowTempPic(e.target.files[0]); handleImageChange(e);}}
+                className="hidden"
+                style={fileInputStyle}
+              /></label>
+              {theNewPhoto.map((picture, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-blue-500" />
+                      <div>
+                        <div className="font-medium">{picture.name}</div>
+                        <div className="text-sm text-gray-500">{picture.size} MB</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removePicture(index)}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+            </div>
+         <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <DollarSign className="w-6 h-6 text-blue-500" />
                 <h2 className="text-2xl font-bold">Set Course Price</h2>
               </div>
+              {/* Checkbox to select "Free" */}
+              <div className="flex items-center gap-2 ml-5">
+                <input
+                  type="checkbox"
+                  id="freeCourse"
+                  checked={price === "Free"} 
+                  onChange={(e) => setPrice(e.target.checked ? "Free" : "")}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="freeCourse" className="text-gray-700">
+                  Free Course
+                </label>
+              </div>
               
+              {/* Price input field */}
               <div className="relative">
                 <input
-                  type="number"
+                  type={price === "Free" ? "text" : "number"}
                   name="price"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  value={price === "Free" ? "Free" : price}
+                  onChange={(e) => {price <= 10 ? setPrice(e.target.value) : setPrice(10)}}
                   placeholder="Enter course price"
                   min="0"
                   step="0.01"
-                  className="w-full p-3 pl-8 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={price === "Free"} 
+                  className={`w-full p-3 pl-8 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    price === "Free" ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 />
                 <span className="absolute left-3 top-3 text-gray-500">$</span>
               </div>
+              <p className='text-center text-gray-500'>The maximum price $10</p>
             </div>
           </div>
         );
@@ -365,7 +443,7 @@ const CourseCreationSteps = () => {
   };
   if(auth){
     return (
-      <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg mt-40 mb-16">
+      <div className="w-screen max-w-2xl mx-auto bg-white rounded-lg shadow-lg mt-40 mb-16">
         <div className="border-b px-6 py-4 flex items-center justify-between">
           <div className="text-lg font-semibold">Step {currentStep} of 5</div>
           <div className="text-sm text-gray-500">

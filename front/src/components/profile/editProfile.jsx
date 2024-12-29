@@ -113,7 +113,7 @@ export default function EditProfilePage (){
         borderRadius: '8px',
         fontSize: '16px',
         cursor: 'pointer',
-      };
+    };
 
 return (<>
 

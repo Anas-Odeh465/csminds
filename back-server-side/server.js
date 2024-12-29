@@ -692,19 +692,22 @@ app.post('/Instuctor/info', (req, res) => {
     
 })
 
-const storage_video = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, path.join(__dirname, "uploads/Videos"));
-    },
-    filename: function (req, file, cb) {
-      return cb(null, `${Date.now()}_${file.originalname}`)
-    }
-})
-  
-const upload_video = multer({storage: storage_video})
+const upload_video_picture = multer({
+    storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+            const destination =
+                file.fieldname === "video"
+                    ? path.join(__dirname, "uploads/Videos")
+                    : path.join(__dirname, "uploads/Images");
+            cb(null, destination);
+        },
+        filename: function (req, file, cb) {
+            cb(null, `${Date.now()}_${file.originalname}`);
+        },
+    }),
+});
 
-
-app.post('/uploads/course=video', upload_video.single('video') ,(req, res) => {
+app.post("/uploads/course=video",upload_video_picture.fields([ { name: "video", maxCount: 1 },{ name: "coursePic", maxCount: 1 },]),(req, res) => {
     const email = req.body.email;
     const title = req.body.title;
     const category = req.body.category;
@@ -714,44 +717,108 @@ app.post('/uploads/course=video', upload_video.single('video') ,(req, res) => {
     const price = req.body.price;
 
     console.log('\n================================\n');
-    console.log('Title:', req.body.title); 
-    console.log('Category:', req.body.category); 
-    console.log('Level:', req.body.level);
-    console.log('Prerequisites:', req.body.prerequisites); 
-    console.log('Outcomes:', req.body.outcomes); 
-    console.log('Price:', req.body.price); 
-    console.log('Email: ', req.body.email);
-    console.log('file: \n',req.file); 
+    console.log('Request Data:', { email, title, category, level, requirements, outcomes, price });
+    console.log("Uploaded Files:", req.files);
 
-    const videoPath = `/uploads/Videos/${req.file.filename}`;
-    console.log('Saved video path:', videoPath);
-
-    let outcomeArray = [];
-    let prerequisitesArray = [];
-
-    if (typeof outcomes === 'string') {
-      outcomeArray = outcomes.split(','); 
-    } else {
-      outcomeArray = Array.isArray(outcomes) ? outcomes : [outcomes];
+    if (!req.files) {
+        return res.status(400).json({ error: "Video file is required" });
     }
+
+    const videoPath = req.files.video ? `/uploads/Videos/${req.files.video[0].filename}` : null;
+    const imagePath = req.files.coursePic ? `/uploads/Images/${req.files.coursePic[0].filename}`: null;
+
+        console.log("Saved video path:", videoPath);
+        console.log("Saved image path:", imagePath);
+
+    const outcomeArray = Array.isArray(outcomes) ? outcomes : (typeof outcomes === 'string' ? outcomes.split(',') : []);
+    if (outcomeArray.length > 4) {
+        return res.status(400).json({ error: "A maximum of 4 outcomes is allowed" });
+    }
+    const [outcome_1 = null, outcome_2 = null, outcome_3 = null, outcome_4 = null] = outcomeArray;
+
+    const requirementArray = Array.isArray(requirements) ? requirements : (typeof requirements === 'string' ? requirements.split(',') : []);
+    if (requirementArray.length > 4) {
+        return res.status(400).json({ error: "A maximum of 4 requirements is allowed" });
+    }
+    const [requirement_1 = null, requirement_2 = null, requirement_3 = null, requirement_4 = null] = requirementArray;
+
+    const query = `
+        SELECT r.id AS userID, i.user_ID AS instructorID
+        FROM registerd_user r
+        LEFT JOIN instructors i ON r.id = i.user_ID
+        WHERE r.email = ?
+    `;
+
+    connection.query(query, [email], (err, results) => {
+        if (err) {
+            return res.json("Error: " + err);
+        }
+        if (results.length === 0 || !results[0].instructorID) {
+            return res.json("User not found or not an instructor");
+        }
+        const instructorID = results[0].instructorID;
+        const insertQuery = `INSERT INTO courses 
+            (user_courseID, course_level, course_title, course_category, video_course, course_picture, course_pricing)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        connection.query(insertQuery, [instructorID, level, title, category, videoPath, imagePath, price], (err, data) => {
+            if (err) {
+                return res.json("Error: " + err);
+            }else{
+                const query_2 = `SELECT ID_course_specifier FROM courses WHERE user_courseID=?`;
+                connection.query(query_2, [instructorID], (err, data) => {
+                    if(err){
+                        return res.json("Error: " + err);
+                    }
+                    else{
+                        const courseID = data[0].ID_course_specifier;
+                        const insertOutcomesQuery  = `INSERT INTO courses_outcomes 
+                        (user_courseID, outcome_1, outcome_2, outcome_3, outcome_4, ID_course_specifier)
+                            VALUES(?, ?, ?, ?, ?, ?)`;
+                        connection.query(insertOutcomesQuery, [instructorID, outcome_1, outcome_2, outcome_3, outcome_4, courseID], (err, data) => {
+                            if(err){
+                                return res.json("Error: " + err);
+                            }
+                            const insertRequirementsQuery = `
+                            INSERT INTO courses_requirements (user_courseID, requirement_1, requirement_2, requirement_3, requirement_4, ID_course_specifier)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                            `;
+                            connection.query(insertRequirementsQuery, [instructorID, requirement_1, requirement_2, requirement_3, requirement_4, courseID], (err, requirementsResult) => {
+                                if (err) {
+                                    console.error(err);
+                                    return res.status(500).json({ error: "Failed to insert requirements" });
+                                }
+                                else{
+                                    return res.json("course uploaded successfully");
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+        });   
+    });
+});
+
+
+app.get('/api/courses', (req, res) => {
+    const query = `
+        SELECT courses.*, CONCAT(registerd_user.FirstName, ' ', registerd_user.LastName) AS FullName
+        FROM courses 
+        INNER JOIN registerd_user 
+        ON courses.user_courseID = registerd_user.id
+    `;
      
-    outcomeArray.forEach(outcome => {
-      console.log('Outcome:', outcome);
+    connection.query(query, (err, results) => {
+        if (err) {
+            return res.json("Failed to fetch courses");
+        }
+        if (results.length === 0) {
+            return res.json([]);
+        }
+        else{
+            return res.json(results);   
+        }
     });
-
-    if (typeof requirements === 'string') {
-        prerequisitesArray = requirements.split(',');  
-    } else {
-        prerequisitesArray = Array.isArray(requirements) ? requirements : [requirements];
-    }
-
-    console.log('Prerequisites as array:', prerequisitesArray);
-
-    prerequisitesArray.forEach(prerequisite => {
-       console.log('Prerequisite:', prerequisite);
-    });
-
-    return res.json('steps complete');
 });
 
 

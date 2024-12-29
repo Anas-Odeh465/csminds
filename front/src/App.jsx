@@ -32,7 +32,7 @@ function App() {
             <Route path="/courses" element={<DefaultLayout> <CoursesPage /> </DefaultLayout>} />
             <Route path="/become-instructor" element={<DefaultLayout> <BecomeInstructor /> </DefaultLayout>} />
             <Route path="/courses/:courseId" element={<DefaultLayout> <CourseDetailsPage /> </DefaultLayout>} />
-            <Route path="/login" element={<DefaultLayout> <AuthPage /> </DefaultLayout>} />
+            <Route path="/login" element={<NoLayout> <AuthPage /> </NoLayout>} />
             <Route path="/useravtart" element={<DefaultLayout> <UserAvatar /> </DefaultLayout>} />
             <Route path="/useravtart2" element={<DefaultLayout> <UserAvatarSmall /> </DefaultLayout>} />
             <Route path="/passCode" element={<DefaultLayout> <EmailVerification /> </DefaultLayout>} />

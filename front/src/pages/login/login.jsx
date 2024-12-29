@@ -121,7 +121,7 @@ const AuthPage = ({state}) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4 py-12 mt-20 mb-20">
+    <div className="min-h-screen w-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4 py-12  ">
     <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
       {/* Image Section */}
       <div className="hidden md:block relative h-full min-h-[600px] rounded-2xl overflow-hidden">
@@ -199,7 +199,7 @@ const AuthPage = ({state}) => {
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <button 
                   type="button"
                   onClick={handelForgotPassword}
@@ -219,7 +219,7 @@ const AuthPage = ({state}) => {
               <button
                 type="button"
                 onClick={loginWithGoogle}
-                className="w-full py-4 px-6 border border-gray-300 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50"
+                className="w-full py-4 px-6 border border-gray-300 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-100 transform hover:scale-[1.02] shadow-lg"
               >
                 <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="Google logo" className="w-6 h-6" />
                 <span>Continue with Google</span>
@@ -317,41 +317,13 @@ const AuthPage = ({state}) => {
               <button
                 type="button"
                 onClick={loginWithGoogle}
-                className="w-full py-4 px-6 border border-gray-300 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50"
+                className="w-full py-4 px-6 border border-gray-300 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-100 transform hover:scale-[1.02] shadow-lg"
               >
                 <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="Google logo" className="w-6 h-6" />
                 <span>Sign up with Google</span>
               </button>
-
-              <p className="text-center text-sm text-gray-600">
-                By signing up, you agree to our{' '}
-                <a href="#" className="text-blue-600 hover:underline">
-                  Terms of Service
-                </a>
-              </p>
             </form>
           )}
-
-          {/* Social Login Section */}
-          <div className="mt-8">
-            <div className="flex items-center justify-center space-x-4">
-              <span className="h-px w-full bg-gray-300"></span>
-              <span className="text-gray-500 whitespace-nowrap px-4">or continue with</span>
-              <span className="h-px w-full bg-gray-300"></span>
-            </div>
-            <div className="mt-4 flex justify-center space-x-4">
-              <button className="p-4 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transform hover:scale-110">
-                <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z"/>
-                </svg>
-              </button>
-              <button className="p-4 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transform hover:scale-110">
-                <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2.917 16.5v-9l7.5 4.5-7.5 4.5z"/>
-                </svg>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

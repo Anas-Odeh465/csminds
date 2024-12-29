@@ -23,7 +23,10 @@ const NavigationBar = () => {
     "Programming Languages",
     "Game Development",
     "IT & Software",
-    "Office Productivity"
+    'Design',
+    'Marketing',
+    'Business',
+    'Office Productivity',
   ];
 
   const handleCategoryClick = (category) => {
@@ -219,9 +222,9 @@ const NavigationBar = () => {
                 <a href='#' className="text-gray-600 cursor-pointer"> Instructor</a>
               ) : (
                 auth ? (
-                <a href="http://localhost:5173/become-instructor" className="text-gray-600">Teach with CS Mind</a>
+                <a href="http://localhost:5173/become-instructor" className="text-gray-600">Teach with CS Minds</a>
                 ) : (
-                <a className="text-gray-600 cursor-pointer" onClick={() => navigate('/login', {state: 'login'})}>Teach with CS Mind</a>
+                <a className="text-gray-600 cursor-pointer" onClick={() => navigate('/login', {state: 'login'})}>Teach with CS Minds</a>
                 )
               )}
 
