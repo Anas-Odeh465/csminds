@@ -55,7 +55,7 @@ const CourseCard = ({ title, category, price, image, name }) => {
           <img src={`http://localhost:3307${image}`} width="270" alt="Course" />
         ) : (
           <p>Course not available</p>
-        )}
+        )} 
       </div>
       <div className="flex flex-col flex-grow p-2">
         <div className="flex-grow">
