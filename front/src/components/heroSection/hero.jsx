@@ -23,6 +23,13 @@ const HeroSection = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const scrollDown = () => {
+    window.scrollBy({
+      top: 1430, 
+      behavior: 'smooth', 
+    });
+  };
+
   return (
     <div className="relative h-screen w-full overflow-hidden ">
       {/* Image Slider */}
@@ -54,7 +61,7 @@ const HeroSection = () => {
         <p className="text-lg md:text-xl text-white mb-8 max-w-2xl drop-shadow-md">
           Explore thousands of online courses from the best instructors
         </p>
-        <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 shadow-lg">
+        <button onClick={scrollDown} className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300 shadow-lg">
           Get Started
         </button>
       </div>

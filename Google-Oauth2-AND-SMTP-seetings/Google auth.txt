@@ -1,0 +1,7 @@
+client secret: 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
+
+client ID: 235400097135-m5dvktgrbqtectsn4udlictun1gg2qrt.apps.googleusercontent.com
+
+redirect link appwrite: https://cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/674b6571003bfbd60dc5
+
+

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {UserAvatar_large}  from '../Profile/userAvat';
 
 
 export default function EditProfilePage (){
-
+    const navigate = useNavigate();
     const [auth, setAuth] = useState(false);
     const [firstName, setFirstname] = useState('');
     const [lastName, setLastname] = useState('');
@@ -17,7 +18,6 @@ export default function EditProfilePage (){
     const [linkedin, setLinkedin] = useState('');
     const [facebook, setFaceBook] = useState('');
     const [theNewPhoto, setTheNewPhoto] = useState('');
-
     const [showTempPic, setShowTempPic] = useState('');
 
     axios.defaults.withCredentials = true;
@@ -84,22 +84,22 @@ export default function EditProfilePage (){
             email,
             headline,
             biography,
-            // showTempPic,
             X,
             youtube,
             linkedin,
             facebook]).then(res => {
             if(res.data === 'Profile updated successfully'){
-                alert('Profile updated successfully');
+                navigate('/publicProfile');
+                location.reload(true);
             }
             else{
-                alert('Failed to update profile');
+                alert('Failed to update profile:', res.data);
             }
         }).catch(err => { console.log(err) });
-        if (photo !== ''){
+        if (photo !==''){
             axios.post('http://localhost:3307/upload',showTempPic)
             .then( res => {})
-            .catch(er => console.log(er))
+            .catch(err => console.log(err))
         }
     }
 
@@ -264,24 +264,24 @@ return (<>
      
 
         { photo === 'No photo available' 
-        ? (
-           <UserAvatar_large firstName={firstName} />
-        ) :
-        'http://localhost:3307' + theNewPhoto !== `http://localhost:3307${photo}` 
-        ? ( theNewPhoto === '' 
-            ?(  
+            ? (
+            <UserAvatar_large firstName={firstName} />
+            ) :
+            'http://localhost:3307' + theNewPhoto !== `http://localhost:3307${photo}` 
+            ? ( theNewPhoto === '' 
+                ?(  
+                    <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
+                    style={{ marginTop: '10px', width: '100px',
+                    height: '100px', borderRadius: '50%' }} />
+                ): (
+                    <img src={theNewPhoto} alt="Profile preview" 
+                    style={{ marginTop: '10px', width: '100px',
+                    height: '100px', borderRadius: '50%' }} />
+                ) 
+            ) : (
                 <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
                 style={{ marginTop: '10px', width: '100px',
-                height: '100px', borderRadius: '50%' }} />
-             ): (
-                <img src={theNewPhoto} alt="Profile preview" 
-                style={{ marginTop: '10px', width: '100px',
-                height: '100px', borderRadius: '50%' }} />
-             ) 
-        ) : (
-            <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
-            style={{ marginTop: '10px', width: '100px',
-            height: '100px', borderRadius: '50%' }} />
+                height: '100px', borderRadius: '50%', objectFit: 'cover' }} />
         )}
          
           

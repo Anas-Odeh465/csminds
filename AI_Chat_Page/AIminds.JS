@@ -127,12 +127,13 @@ function myFunction() {
 
 }
 
+// fetch user information
 
 // chat messages system between user and ai respnse
 let chatInput = document.getElementById('Response').value;
 const sendButton = document.getElementById('send_prompt');
 
-const message = chatInput.value;
+let message = chatInput.value;
 let save_user_input_to_the_txt_file = " ";
 function getTextareaValue() {
     const text_animation = document.getElementById('text-animation');
@@ -143,6 +144,8 @@ function getTextareaValue() {
     textareaElement.addEventListener('input', function() {
         if (textarea.value.trim() !== "") {
             sendButton.style.display = 'block';
+            recent_chat(value_of_input);
+            
         } else {
             sendButton.style.display = 'none';
             textarea.value = "";
@@ -150,10 +153,10 @@ function getTextareaValue() {
     });
     if (value_of_input !== "") { 
         appendMessage_user(value_of_input, 'user-message');
-        recent_chat(value_of_input);
         textareaElement.value = ""; 
         autoResize.call(textareaElement); 
         text_animation.style.display = 'none'; 
+        fetch_start(value_of_input);
     } 
     const dataToSend = { message: value_of_input };
     
@@ -202,105 +205,31 @@ function callback_for_recent_response(message1){
 let messageCounter = 0;
 let content_text = "";
 function appendMessage(message, className) { 
-    const existingSpan = document.getElementById('existingSpan');
     const chatArea = document.getElementById('chat_area');
     const messageDiv = document.createElement('div');
     const spanMessage = document.createElement('span');
-    const copyButton = document.createElement('button');
-    const buttonImage = document.createElement('img');
-    const likeButton = document.createElement('button');
-    const likeImage = document.createElement('img');
-    const disButton = document.createElement('button');
-    const dislikeImage = document.createElement('img');
+
     const spinner_load = document.createElement('div');
 
     spinner_load.className = 'spinner';
     spinner_load.style.display = 'block';
     
-    const copyIcon = document.createElement('span');
-    copyIcon.className = 'material-icons-outlined';
-    copyIcon.textContent = 'content_copy';
-    
-    const dislikeIcon = document.createElement('span');
-    dislikeIcon.className = 'material-icons-outlined';
-    dislikeIcon.textContent = 'thumb_down'; 
-    
-    const likeIcon = document.createElement('span');
-    likeIcon.className = 'material-icons-outlined';
-    likeIcon.textContent = 'thumb_up'; 
+
 
     messageCounter++;
 
-    const formattedMessage = message.replace(/\n/g, '<br>');
+    const formattedMessage = message.replace(/\n/g, '<br>').replace(/\s/g, '&nbsp;');;
     messageDiv.className = `message ${className}`;
+    spanMessage.style.writingMode = 'normal';
     spanMessage.innerHTML = formattedMessage;
     spanMessage.style.flexGrow = '1';
+    spanMessage.style.alignSelf = 'flex-start';
 
     content_text += formattedMessage + "\n\n\n";
 
     spanMessage.id = `message-${messageCounter}`;
 
-    copyButton.id = `copy-${messageCounter}`;
     
-    copyButton.className = 'message-button'; 
-    copyButton.appendChild(copyIcon);
-
-    disButton.className = 'message-button2';
-    disButton.id = `dislike-${messageCounter}`;
-    disButton.appendChild(dislikeIcon);
-
-    likeButton.className = 'message-button3';
-    likeButton.id = `like-${messageCounter}`;
-    likeButton.appendChild(likeIcon);
-
-
-    copyButton.addEventListener('click', () => {
-        const copyButton = document.getElementById(`copy-${messageCounter}`);
-        const textToCopy = document.getElementById(`message-${messageCounter}`);
-        copyButton.addEventListener('click', () => {
-        
-        navigator.clipboard.writeText(textToCopy.textContent).then(() => {
-        
-        })
-        .catch(err => {
-        console.error('Failed to copy text: ', err);
-        });
-        });
-    });
-
-    likeButton.addEventListener('click', () => {
-        const show_like_div = document.getElementById(`like-${messageCounter}`);
-        const like_div = document.getElementById('like-div');
-        const close_div = document.getElementById('profile-close-btn2');
-        show_like_div.addEventListener('click', () => {
-            like_div.style.display = 'block';
-        })
-        close_div.addEventListener('click', () =>{
-            like_div.style.display = 'none';
-        })
-    });
-
-    disButton.addEventListener('click', () => {
-        const show_dislike_div = document.getElementById(`dislike-${messageCounter}`);
-        const dislike_div = document.getElementById('dislike-div');
-        const close_div = document.getElementById('profile-close-btn3');
-        show_dislike_div.addEventListener('click', () => {
-            dislike_div.style.display = 'block';
-        })
-        close_div.addEventListener('click', () =>{
-            dislike_div.style.display = 'none';
-        })
-    });
-
-    if (localStorage.getItem('darkMode') === 'enabled') {
-        copyButton.classList.add('dark-mode');
-        likeButton.classList.add('dark-mode');
-        disButton.classList.add('dark-mode');
-    } else {
-        copyButton.classList.remove('dark-mode');
-        likeButton.classList.remove('dark-mode');
-        disButton.classList.remove('dark-mode');
-    }
     messageDiv.appendChild(spinner_load);
     chatArea.appendChild(messageDiv);
     
@@ -310,9 +239,7 @@ function appendMessage(message, className) {
             chatArea.scrollTop = chatArea.scrollHeight;
         }, 0);
         messageDiv.appendChild(spanMessage);
-        messageDiv.appendChild(copyButton); 
-        messageDiv.appendChild(disButton);
-        messageDiv.appendChild(likeButton);
+
         chatArea.appendChild(messageDiv);
         chatArea.scrollTop = chatArea.scrollHeight;
     }, 1000);
@@ -355,8 +282,39 @@ if(x && y){
 else{
     text_animation.style.display = 'block';
 }
-        
 
+function Classifier(){
+    const get_btn_content = document.getElementById('logout-btn-text').textContent;
+    if(get_btn_content == 'Logout'){
+        logout_user();
+    }
+    else{
+        login_user();
+    }
+}
+        
+function logout_user(){
+    fetch('http://localhost:3307/logout', {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+    }, credentials: 'include' }).then(() => {
+        window.location = "http://localhost:5173/login?state=login";
+    })
+    .catch(err => console.log('Error during logout:', err));
+}
+
+function login_user(){
+   window.location = `http://localhost:5173/login?state=login`;
+}
+
+function feature(){
+    window.location = 'http://localhost/AI_Chat_Page/AI-mind-feature.HTML';
+}
+
+function help(){
+    window.location = 'http://localhost/AI_Chat_Page/AI-mind-help.HTML';
+}
 
 // --------------finally-save the messages on refresh------------
 
@@ -425,11 +383,20 @@ save_chat_toggle.addEventListener('change', () => {
     } else {
         localStorage.setItem('saveMode', 'disabled');
     }
+
+    
 });
 
 //add to recent------------------------------------------------------
+const addedMessages = new Set();
+
 function recent_chat(message){
     if (localStorage.getItem('saveMode') === 'enabled') { 
+        if (addedMessages.has(message)) {
+            console.log('Message already added:', message);
+            return; 
+        }addedMessages.add(message);
+
         const span_recent = document.createElement('span');
         const divappend = document.getElementById('recent_chat');
         const messageIcon = document.createElement('i');
@@ -476,8 +443,8 @@ function recent_chat(message){
                 settingDiv.style.visibility = 'visible';
                 deleteLable.addEventListener('click',()=>{
                     event.stopPropagation();
-                    removeRecentMessage(message);
                     divappend.removeChild(span_recent);
+                    removeRecentMessage(message);
                 });
             }
             else{
@@ -485,33 +452,106 @@ function recent_chat(message){
             }
             
         });
-        addRecentMessage(message);
     }
 }
 
-function addRecentMessage(message) {
-    let existingMessages = localStorage.getItem('recent') || '';
-    let newMessages = existingMessages ? existingMessages + '||' + message : message;
-    localStorage.setItem('recent', newMessages);
-    localStorage.setItem('messages-1',newMessages);
+let Global_email = ''
+async function fetch_start(message){
+    console.log("Fetching...");
+    const response = await fetch('http://localhost:3307/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const email = data.Email; 
+    Global_email = email;
+    console.log('fetch start: ', email);
+
+    retrieve_messeges(email);
+
+    if(message !== ''){
+        const message_true = message;
+        addRecentMessage(message_true, email);
+    }
 }
 
-window.onload = function() {
-    let recent_message = localStorage.getItem('recent');
-    if (recent_message) {
-        let recentMessagesArray = recent_message.split("||");
-        const processedMessages = new Set();
+document.addEventListener("DOMContentLoaded", () => {
+    console.log('Page Loaded!');
+    for (let i = 0; i < 1; i++) {
+        fetch_start();
+    }
+});
 
-        recentMessagesArray.forEach(message => {
-            if (!processedMessages.has(message)) {
-                recent_chat(message);
-                processedMessages.add(message);
+async function addRecentMessage(Message, Email) {
+    console.log("addRecentMessage has: ", Message, Email);
+    const email = Email;
+    const message = Message;
+    if(localStorage.getItem('saveMode') === 'enabled'){
+        try {
+            const responses = await fetch('http://localhost:3307/api/save-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ message, email }),
+            });
+
+            if (!responses.ok) {
+                throw new Error(`HTTP error! status: ${responses.status}`);
             }
-        });
+
+            const result = await responses.json();
+            console.log('Message saved:', result);
+        
+        } catch (error) {
+            console.error(error);
+          }
     }
 }
 
-function removeRecentMessage(messageToRemove) {
+async function retrieve_messeges(Email) {
+    try {
+        const email = Email; 
+        const response = await fetch(`http://localhost:3307/api/get-messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({email}),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Data: ', data);
+        console.log('the retrieved message is: ' + data.messages);
+        if (data.allMessages) {
+            const allMessages = data.allMessages;
+                allMessages.forEach(message => {
+                recent_chat(message); 
+            });
+        } else {
+            console.log('No messages found or error:', data.error);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+async function removeRecentMessage(messageToRemove) {
     let existingMessages = localStorage.getItem('recent');
     
     if (existingMessages) {
@@ -519,6 +559,28 @@ function removeRecentMessage(messageToRemove) {
         let updatedMessages = messagesArray.join("||");
         localStorage.setItem('recent', updatedMessages);
     }
+
+    try {
+        const responses = await fetch('http://localhost:3307/api/removeMessages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ messageToRemove, Global_email }),
+        });
+
+        if (!responses.ok) {
+            throw new Error(`HTTP error! status: ${responses.status}`);
+        }
+
+        const result = await responses.json();
+        console.log('Message removed:', result);
+    
+} catch (error) {
+    console.error(error);
+}
+
 }
 
 // -----------load in chat area ------------------------------------
@@ -612,6 +674,24 @@ profile.addEventListener('click', () =>{
     }
 });
 
+const profile_avatar = document.getElementById('avatar-2');
+
+profile_avatar.addEventListener('click', () =>{
+    const show_profile = document.getElementById('profile-view');
+    if(show_profile.style.visibility === 'hidden'){
+        show_profile.style.visibility = 'visible';
+        if(show_profile.style.visibility === 'visible'){
+            span1.style.display = 'none';
+        } 
+    }
+    else{
+        show_profile.style.visibility = 'hidden';
+        if(show_profile.style.visibility === 'hidden'){
+            span1.style.display = 'block';
+        }
+    }
+});
+
 const close_profile = document.getElementById('profile-close-btn');
     close_profile.addEventListener('click', () =>{
     show_profile.style.visibility = 'hidden';
@@ -631,9 +711,14 @@ document.getElementById('download_button').addEventListener('click', () => {
     download_conversation(`AImind-conversation-${counter_file}.txt`, content_text);
 });
 
-function download_conversation(filename, content_text){
-    if(content_text){
-        let formatted_Message_txt = content_text.replace(/<br>/g, '\n');
+function download_conversation(filename, content_text) {
+    if (content_text) {
+        const tempElement = document.createElement('textarea');
+        tempElement.innerHTML = content_text;
+        let formatted_Message_txt = tempElement.value;
+
+        formatted_Message_txt = formatted_Message_txt.replace(/<br>/g, '\n');
+
         const link = document.createElement('a');
         const blob = new Blob([save_user_input_to_the_txt_file + '\n\n' + 'AI mind:\n' + formatted_Message_txt], { type: 'text/plain' });
         link.download = filename;

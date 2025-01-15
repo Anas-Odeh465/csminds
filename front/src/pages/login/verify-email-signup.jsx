@@ -59,6 +59,7 @@ const AccountEmailVerification = () => {
         <div className="verification-header">
                 <h1 className="text-2xl font-extrabold text-white drop-shadow-md">CS Minds</h1>
                 <h2 className="text-lg font-semibold text-white mt-2">Verify your email</h2>
+                <p className="text-sm font-semibold text-white mt-2">The code expire after 3 minutes</p>
             </div>
         <div className="verification-inputs">
             {code.map((digit, index) => (

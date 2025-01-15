@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
+import axios from 'axios';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
   const quickLinks = [
     { name: "About Us", href: "#" },
     { name: "Contact", href: "#" },
@@ -25,6 +27,19 @@ const Footer = () => {
     { Icon: Linkedin, href: "#", label: "LinkedIn" },
     { Icon: Mail, href: "#", label: "Email" }
   ];
+
+  const handlesubscribeUser = () =>{
+    axios.post('http://localhost:3307/api/SubscribersUser/News', {email})
+    .then(response =>{
+      if(response.data === 'Subscriber added successfully'){
+        console.log('Subscribed Successfully');
+        alert('Subscribed Successfully');
+      }
+      else{
+        alert(response.data);
+      }
+    }).catch(err =>{console.log(err)});
+  }
 
   return (
     <footer className="bg-gray-50 border-t">
@@ -97,10 +112,13 @@ const Footer = () => {
             <div className="space-y-2">
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 className="w-full px-4 py-2 rounded-full border focus:outline-none focus:ring-2 focus:ring-gray-200"
               />
-              <button className="w-full px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700 transition-colors">
+              <button onClick={() => handlesubscribeUser()}
+              className="w-full px-6 py-2 rounded-full bg-gray-800 text-white hover:bg-gray-700 transition-colors">
                 Subscribe
               </button>
             </div>

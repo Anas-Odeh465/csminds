@@ -1,0 +1,14 @@
+
+smtp test tool->
+
+SMTP Server : smtp.gmail.com
+
+port: 465 
+
+secure: ssl
+
+email: csminds0101@gmail.com
+
+App password: CSminds
+
+password:  nbpdtykphjlabldl

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mind - Feature Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: #2A2A2A;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .features, .future-work {
+            padding: 40px 0;
+        }
+
+        .features h2, .future-work h2 {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .programming-languages {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .language-frame {
+            background-color: #ffffff;
+            border: 2px solid #2A2A2A;
+            border-radius: 10px;
+            padding: 20px;
+            width: 30%;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .language-frame:hover {
+            transform: translateY(-10px);
+        }
+
+        .language-frame h3 {
+            font-size: 1.5em;
+            color: #2A2A2A;
+        }
+
+        .language-frame p {
+            font-size: 1em;
+            color: #666;
+        }
+
+        .future-work .work-item {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .future-work .work-item h3 {
+            font-size: 1.5em;
+            color: #2A2A2A;
+        }
+
+        .future-work .work-item p {
+            font-size: 1.1em;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background-color: #2A2A2A;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>AI Mind</h1>
+            <p>AI-powered chatbot to help you with Python, C++, and Java programming</p>
+        </div>
+    </header>
+
+    <section class="features">
+        <div class="container">
+            <h2>Key Features</h2>
+            <div class="programming-languages">
+                <div class="language-frame">
+                    <h3>Python</h3>
+                    <p>AI Mind helps you with Python code, debugging, and optimizations.</p>
+                </div>
+                <div class="language-frame">
+                    <h3>C++</h3>
+                    <p>Get assistance with C++ syntax, algorithms, and data structures.</p>
+                </div>
+                <div class="language-frame">
+                    <h3>Java</h3>
+                    <p>AI Mind can guide you through Java code development and best practices.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="future-work">
+        <div class="container">
+            <h2>Future Work for AI Mind</h2>
+            <div class="work-item">
+                <h3>1. Transition to Original BERT for Improved Capability</h3>
+                <p><strong>Why?</strong> The original BERT has a larger capacity than DistilBERT, capturing richer contextual relationships for better handling of complex programming queries.</p>
+                <p><strong>What It Adds:</strong> Enhanced contextual understanding, improving the ability to handle ambiguous or complex questions.</p>
+            </div>
+            <div class="work-item">
+                <h3>2. Integration with Large Data Sources</h3>
+                <p><strong>Why?</strong> Increasing data size and diversity improves the model’s comprehension and ensures it remains applicable to real-world programming scenarios.</p>
+                <p><strong>What It Adds:</strong> Broader knowledge base, enabling high-quality answers to advanced queries.</p>
+                <p><strong>How?</strong> By scraping or integrating APIs from platforms like Stack Overflow or GitHub.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AI Mind. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

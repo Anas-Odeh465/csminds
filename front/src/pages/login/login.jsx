@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import validation_signup from './signup-validation';
 import axios from "axios";
 import { validation_login, validate_only_email } from './login-validation';
-import { useNavigate, useLocation  } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import googleLogo from "../../assets/google.png";
 
 const AuthPage = ({state}) => {
   
   const location = useLocation();
-  const state_button = location.state;
+  const [searchParams] = useSearchParams();
+  const state_button = location.state || searchParams.get('state') || state;
   const [activeTab, setActiveTab] = useState(state_button);
 
   /*
@@ -17,6 +18,8 @@ const AuthPage = ({state}) => {
     const [signupEmail, setSignupEmail] = useState('');
     const [signupPassword, setSignupPassword] = useState('');
   */
+
+    
 
   const navigate = useNavigate();
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -60,7 +63,6 @@ const AuthPage = ({state}) => {
                     if (res.data === "Invalid email or password") {
                         alert(res.data); 
                     } else {
-                        alert(res.data);
                         navigate('/');
                         window.location.reload();
                     }
@@ -88,7 +90,6 @@ const AuthPage = ({state}) => {
                     location.reload(true);
                 }
                 else if (res.data === "User registered successfully!"){
-                    alert("One more step: verify your email account");
                     axios.post('http://localhost:3307/verify-email-account', valuesSignUp)
                     .then(res => {
                         if(res.data === "Verification sent to " + valuesSignUp.email){
