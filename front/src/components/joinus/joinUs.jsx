@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import img from '../../assets/image.jpg';
-import img2 from '../../assets/imag1.jpg';
-import img3 from '../../assets/imag2.jpg';
-import img4 from '../../assets/imag3.jpg';
+import img2 from '../../assets/teach.png';
+import img3 from '../../assets/thinck2.png';
+import img4 from '../../assets/reward.png';
 import {useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 const InstructorPage = () => {
@@ -64,7 +64,7 @@ const InstructorPage = () => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:3307/Instuctor/info', 
-      [Instructor_name, InstructorWorkEmail,email, role, number])
+      [Instructor_name, InstructorWorkEmail,email, role])
       .then(res => {
         if (res.data === 'Instructor info inserted successfully'){
           alert('Information has been submitted successfully!');
@@ -145,6 +145,7 @@ const InstructorPage = () => {
                     id="name"
                     type="text"
                     defaultValue={Instructor_name}
+                    disabled
                     onChange={(e) => setInstructorName(e.target.value)}
                     placeholder="Your name"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md"
@@ -170,24 +171,10 @@ const InstructorPage = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md">
                     <option>Select your role</option>
                     <option value="Teacher">Teacher</option>
-                    <option value="Administrator">Administrator</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
-                <div>
-                  <label htmlFor="number" className="block text-gray-700 font-semibold mb-2">
-                    Number of learners*
-                  </label>
-                  <input
-                    id="number"
-                    type="number"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                    placeholder="Number"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 mb-10">
                   By sending this form you agree to our{" "}
                   <a href="#" className="text-blue-600 underline">
                     Terms of Service
@@ -201,7 +188,7 @@ const InstructorPage = () => {
                 <button
                   onClick={handleSubmit}
                   type="submit"
-                  className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mt-10"
                 >
                   See it in action
                 </button>
@@ -274,7 +261,7 @@ const InstructorPage = () => {
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600 mb-2">2</div>
-              <p className="text-gray-600">Sign up</p>
+              <p className="text-gray-600">Complete the steps to setup the course</p>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600 mb-2">3</div>

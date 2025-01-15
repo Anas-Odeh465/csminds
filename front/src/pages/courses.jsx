@@ -1,95 +1,155 @@
-import React, { useState, useMemo } from 'react';
-import { Search, BookOpen } from 'lucide-react';
+import React, { useState, useMemo, useEffect} from 'react';
+import axios from 'axios';
+import { Search, BookOpen, ShoppingCart } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CourseContext/cartContext';
+// Explore courses page
 
-const CourseCard = ({ title, description, image, url, duration, level, price, id }) => {
-  const navigate = useNavigate();
+function StarRating({ totalStars = 5, initialRating }) {
+  const [rating, setRating] = useState('');
 
-  const renderImage = () => {
-    switch (image) {
-      case 'python':
-        return (
-          <div className="flex items-center space-x-2">
-            <div className="w-12 h-12 bg-blue-500 rounded-full"></div>
-            <div className="w-12 h-12 bg-yellow-500 rounded-full -ml-6"></div>
-          </div>
-        );
-      case 'html':
-        return (
-          <div className="bg-orange-500 p-4 rounded-lg">
-            <h2 className="text-4xl font-bold text-white">HTML5</h2>
-          </div>
-        );
-      case 'java':
-        return (
-          <div className="w-16 h-16 bg-red-500 rounded-lg flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">Java</span>
-          </div>
-        );
-      case 'unity':
-        return (
-          <div className="bg-black p-4 rounded-lg">
-            <span className="text-white text-2xl font-bold">Unity</span>
-          </div>
-        );
-      case 'react':
-        return (
-          <div className="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center">
-            <span className="text-white text-xl">React</span>
-          </div>
-        );
-      case 'flutter':
-        return (
-          <div className="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center">
-            <span className="text-white text-xl">Flutter</span>
-          </div>
-        );
-      case 'nodejs':
-        return (
-          <div className="w-16 h-16 bg-green-500 rounded-lg flex items-center justify-center">
-            <span className="text-white text-xl">Node</span>
-          </div>
-        );
-      case 'angular':
-        return (
-          <div className="w-16 h-16 bg-red-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-xl">Angular</span>
-          </div>
-        );
-      default:
-        return (
-          <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-            <span className="text-gray-600 text-xl">DEV</span>
-          </div>
-        );
-    }
+  useEffect(() => {
+      setRating(initialRating);
+  }, [initialRating]);
+
+  const calculateStars = () => {
+    return Math.round(rating / 10);
+  };
+
+  const renderStars = () => {
+      const filledStars = calculateStars();
+      const stars = [];
+      for (let i = 0; i < totalStars; i++) {
+          const starClass = i < filledStars ? 'filled' : 'empty';
+          stars.push(
+              <span key={i} className={starClass}>
+                  &#9733;
+              </span>
+          );
+      }
+      return stars;
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
-      <div className="h-48 bg-white flex items-center justify-center p-4">
-        {renderImage()}
+      <div className="star-rating">
+          <span className="rating-value text-gray-700">{rating}</span>&nbsp;&nbsp;
+          {renderStars()}
+          <span style={{ fontSize: '12px' }} className="text-gray-700 pl-[5px] pt-[3px]">
+              ({rating} points)
+          </span>
       </div>
-      <div className="p-6">
-        <h3 className="text-xl font-bold mb-2">{title}</h3>
-        <p className="text-gray-600 mb-4">{description}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm">
-            {duration}
-          </span>
-          <span className="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm">
-            {level}
-          </span>
-          <span className="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm">
-            ${price}
-          </span>
+  );
+}
+
+const Loading = () => {
+  return (
+    <div className="loading">
+      Loading Courses
+      <span className="dot dot1">.</span>
+      <span className="dot dot2">.</span>
+      <span className="dot dot3">.</span>
+    </div>
+  );
+};
+
+const CourseCard = ({ title, category, price, image, name, id, Email, Auth, ratingScore }) => {
+  const navigate = useNavigate(); 
+  const { cart, dispatch } = useCart();
+    
+  const handleAddToCart = () => {
+    if(id && Email) {
+      axios.post('http://localhost:3307/api/saveUserCart', [id, Email]).catch(error => {console.log(error)});
+      dispatch({
+        type: 'ADD_TO_CART',
+        payload: {
+          id: id
+        }
+      });
+    }
+  };
+
+  const handleViewCourseClick = () => {
+    if (!title || !category) {
+      console.error('Title or category is missing for this course: ', title, category);
+      return;
+    }window.scrollTo(0, 0);
+    navigate(
+      `/coursesDetailsPage?category=${encodeURIComponent(category)}&title=${encodeURIComponent(title)}&idc=${encodeURIComponent(id)}`
+    );
+  };
+
+  return (
+    <div className="bg-white ml-[20px] rounded-lg shadow-lg overflow-hidden max-w-sm transform transition-all duration-300 hover:scale-105 hover:shadow-xl h-full flex flex-col">
+      <div className="h-48 bg-white flex items-center justify-center">
+        {image ? (
+          <img src={`http://localhost:3307${image}`} width="270" className='h-[150px]' alt="Course" />
+        ) : (
+          <p>Course not available</p>
+        )}
+      </div>
+      <div className="flex flex-col flex-grow p-2">
+        <div className="flex-grow">
+          <h3 className="text-base font-bold mt-[-20px] text-left">{title}</h3>
+          <h3 className="mt-[2px] text-gray-500 text-left" style={{ fontSize: '12px' }}>
+            {name}
+          </h3>
+          <StarRating totalStars={5} initialRating={ratingScore} />
+          <p className="text-gray-800 font-bold mb-4 text-left">${price}</p>
         </div>
-        <button 
-          onClick={() => navigate(`/courses/${id}`)}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-all duration-300"
-        >
-          View Course
-        </button>
+        <div className="w-full flex justify-center mt-auto gap-7">
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-all duration-300 hover:shadow-lg"
+            onClick={handleViewCourseClick}
+          >
+            View course
+          </button>
+           {Auth ?
+                       (price === 'Free' 
+                         ? (
+                           <button
+                             className="bg-white border border-solid border-[1px] border-gray-400 focus:outline-none text-gray-400 font-semibold "
+                             title="Add to cart"
+                           >
+                            $ Free
+                           </button>
+                         ) :
+                         (
+                           <button onClick={handleAddToCart}
+                             className="bg-white border border-solid text-gray-600 border-[1px] border-gray-600 hover:bg-gray-300 font-semibold w-13 h-13  transition-all duration-300 hover:shadow-lg"
+                             title="Add to cart"
+                           >
+                              <div className='flex flex-row'>
+                                  <ShoppingCart className='w-5 h-5'/>
+                                  <p className='text-sm ml-1'>Add</p>
+                              </div>
+                           
+                           </button>
+                         )
+                       ) : (
+                         price === 'Free' 
+                           ? (
+                             <button
+                               className="bg-white border border-solid border-[1px] border-gray-400 focus:outline-none text-gray-400 font-semibold "
+                               title="Add to cart"
+                             >
+                              $ Free
+                             </button>
+                           ) :
+                           (
+                             <button onClick={() => navigate('/login', {state: 'login'})}
+                               className="bg-white border border-solid text-gray-600 border-[1px] border-gray-600 hover:bg-gray-300 font-semibold w-13 h-13  transition-all duration-300 hover:shadow-lg"
+                               title="Add to cart"
+                             >
+                                <div className='flex flex-row'>
+                                    <ShoppingCart className='w-5 h-5'/>
+                                    <p className='text-sm ml-1'>Add</p>
+                                </div>
+                             
+                             </button>
+                           )
+                       ) 
+                     }
+        </div>
       </div>
     </div>
   );
@@ -100,136 +160,122 @@ const CoursesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedLevel, setSelectedLevel] = useState('All');
   const [selectedPrice, setSelectedPrice] = useState('All');
+  const [allCourses, setAllCourses] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [auth, setAuth] = useState(false);
+  const [email, setEmail] = useState('');
+
+  axios.defaults.withCredentials = true;
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      try {
+        const res1 = await axios.get('http://localhost:3307');
+        
+        if (res1.data && res1.data.FirstName) {
+          setAuth(true);
+          setEmail(res1.data.Email);
+        } else {
+          
+          const res2 = await axios.get('http://localhost:3307/api/users/to');
+          if (res2.data && res2.data.user) {
+            setAuth(true);
+            setEmail(res2.data.user.email);
+          } else {
+            setAuth(false);
+          }
+          
+        }
+      } catch (err) {
+        console.error("Error fetching auth status:", err);
+        setAuth(false);
+      }
+    };
   
+    fetchAuthStatus();
+  }, [auth]);
+
+  useEffect(() => {
+    axios.get('http://localhost:3307/api/courses')
+      .then((response) => {
+        setAllCourses(response.data);
+        setIsLoading(false);
+        console.log('Fetched courses:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching courses:', error);
+        setIsLoading(false);
+      });
+  }, []);
+
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const categoryFromURL = searchParams.get('category') || 'All';
+  const searchFromURL = searchParams.get('search');
+  console.log('Fetched courses', categoryFromURL);
 
-  // Set initial category from URL
-  React.useEffect(() => {
-    setSelectedCategory(categoryFromURL);
-  }, [categoryFromURL]);
+  if(categoryFromURL){
+    useEffect(() => {
+      setSelectedCategory(categoryFromURL);
+    }, [categoryFromURL]);
+  }
 
-  const allCourses = [
-    {
-      id: 'python-beginners',
-      title: 'Python for Beginners',
-      description: 'Start your programming journey with Python fundamentals',
-      image: 'python',
-      category: 'Programming Languages',
-      duration: '8 weeks',
-      level: 'Beginner',
-      price: '49.99',
-      url: '#'
-    },
-    {
-      id: 'advanced-web-dev',
-      title: 'Advanced Web Development',
-      description: 'Master modern web development with React and Node.js',
-      image: 'react',
-      category: 'Web Development',
-      duration: '12 weeks',
-      level: 'Advanced',
-      price: '89.99',
-      url: '#'
-    },
-    {
-      id: 'flutter-mobile',
-      title: 'Mobile App Development with Flutter',
-      description: 'Build cross-platform mobile apps with Flutter',
-      image: 'flutter',
-      category: 'Mobile Development',
-      duration: '10 weeks',
-      level: 'Intermediate',
-      price: '79.99',
-      url: '#'
-    },
-    {
-      id: 'java-enterprise',
-      title: 'Java Enterprise Development',
-      description: 'Learn enterprise Java development with Spring Boot',
-      image: 'java',
-      category: 'Programming Languages',
-      duration: '16 weeks',
-      level: 'Advanced',
-      price: '99.99',
-      url: '#'
-    },
-    {
-      id: 'unity-game-dev',
-      title: 'Unity Game Development',
-      description: 'Create 3D games with Unity and C#',
-      image: 'unity',
-      category: 'Game Development',
-      duration: '14 weeks',
-      level: 'Intermediate',
-      price: '89.99',
-      url: '#'
-    },
-    {
-      id: 'angular-frontend',
-      title: 'Frontend Development with Angular',
-      description: 'Build modern web applications with Angular',
-      image: 'angular',
-      category: 'Web Development',
-      duration: '10 weeks',
-      level: 'Intermediate',
-      price: '69.99',
-      url: '#'
-    },
-    {
-      id: 'nodejs-backend',
-      title: 'Node.js Backend Development',
-      description: 'Create scalable backend services with Node.js',
-      image: 'nodejs',
-      category: 'Web Development',
-      duration: '12 weeks',
-      level: 'Advanced',
-      price: '79.99',
-      url: '#'
-    },
-    {
-      id: 'html-css-basics',
-      title: 'HTML & CSS Fundamentals',
-      description: 'Learn the building blocks of web development',
-      image: 'html',
-      category: 'Web Development',
-      duration: '6 weeks',
-      level: 'Beginner',
-      price: '39.99',
-      url: '#'
-    }
+  if(searchFromURL){
+    useEffect(() => {
+      setSearchQuery(searchFromURL);
+    }, [searchFromURL]);
+  }
+
+  const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
+  const priceRanges = ['All', 'Under $10', 'Under $5', '$5-$10', 'Free'];
+
+  const featuredFilters = [
+    { title: 'All', type: 'filter' },
+    { title: 'Web Development', type: 'filter' },
+    { title: 'Mobile Development', type: 'filter' },
+    { title: 'Programming Languages', type: 'filter' },
+    { title: 'Game Development', type: 'filter' },
+    { title: 'IT & Software', type: 'filter' },
+    { title: 'Data science', type: 'filter' },
+    { title: 'Artificial intelligence', type: 'filter' },
   ];
 
-  const categories = ['All', 'Web Development', 'Mobile Development', 'Programming Languages', 'Game Development'];
-  const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
-  const priceRanges = ['All', 'Under $50', '$50-$80', 'Over $80'];
-
-  const filteredCourses = useMemo(() => {
-    return allCourses.filter(course => {
-      const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          course.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === 'All' || course.category === selectedCategory;
-      const matchesLevel = selectedLevel === 'All' || course.level === selectedLevel;
-      const matchesPrice = selectedPrice === 'All' ||
-        (selectedPrice === 'Under $50' && parseFloat(course.price) < 50) ||
-        (selectedPrice === '$50-$80' && parseFloat(course.price) >= 50 && parseFloat(course.price) <= 80) ||
-        (selectedPrice === 'Over $80' && parseFloat(course.price) > 80);
-
-      return matchesSearch && matchesCategory && matchesLevel && matchesPrice;
+  const filteredCourses = allCourses
+    .filter((course) => {
+      const matchesSearch =
+        (course.course_title && course.course_title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (course.course_description && course.course_description.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      const matchesCategory = selectedCategory === 'All' || course.course_category === selectedCategory;
+      const matchesPrice =
+        selectedPrice === 'All' ||
+        (selectedPrice === 'Under $10' && parseFloat(course.course_pricing) < 10) ||
+        (selectedPrice === 'Under $5' && parseFloat(course.course_pricing) < 5) ||
+        (selectedPrice === '$5-$10' && parseFloat(course.course_pricing) >= 5 && parseFloat(course.course_pricing) <= 10) ||
+        (selectedPrice === 'Free' && course.course_pricing === 'Free');
+      
+      const matchesLevel = selectedLevel === 'All' || course.course_level === selectedLevel;
+      console.log(`Course: ` + course.course_level);
+      return matchesSearch && matchesCategory && matchesPrice && matchesLevel;
     });
-  }, [searchQuery, selectedCategory, selectedLevel, selectedPrice]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (allCourses.length === 0) {
+    return (
+      <div className="block p-6 border-2 border-dashed bg-gray-100 mt-10 mb-10">
+        <p className="text-center text-2xl font-bold">No courses available!</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 mt-16">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-12 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Explore Our Courses
-        </h1>
-        <p className="text-xl text-gray-600">
-          Find the perfect course to advance your programming skills
-        </p>
+        <h1 className="text-4xl font-bold text-gray-700 mb-4">Explore Our Courses</h1>
+        <p className="text-xl text-gray-600">Find the perfect course to advance your programming skills</p>
       </div>
 
       {/* Search and Filters */}
@@ -249,7 +295,7 @@ const CoursesPage = () => {
                 />
               </div>
             </div>
-            
+
             {/* Category Filter */}
             <div className="flex-1">
               <select
@@ -257,8 +303,10 @@ const CoursesPage = () => {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                {categories.map((category) => (
-                  <option key={category} value={category}>{category}</option>
+                {featuredFilters.map((filter) => (
+                  <option key={filter.title} value={filter.title}>
+                    {filter.title}
+                  </option>
                 ))}
               </select>
             </div>
@@ -271,7 +319,9 @@ const CoursesPage = () => {
                 onChange={(e) => setSelectedLevel(e.target.value)}
               >
                 {levels.map((level) => (
-                  <option key={level} value={level}>{level}</option>
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
                 ))}
               </select>
             </div>
@@ -284,7 +334,9 @@ const CoursesPage = () => {
                 onChange={(e) => setSelectedPrice(e.target.value)}
               >
                 {priceRanges.map((range) => (
-                  <option key={range} value={range}>{range}</option>
+                  <option key={range} value={range}>
+                    {range}
+                  </option>
                 ))}
               </select>
             </div>
@@ -302,8 +354,19 @@ const CoursesPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredCourses.map((course) => (
-              <CourseCard key={course.id} {...course} />
+            {filteredCourses.map((course, index) => (
+              <CourseCard
+                key={index}  
+                title={course.course_title}
+                price={course.course_pricing}
+                image={course.course_picture}
+                category={course.course_category}
+                name={course.FullName}
+                id={course.ID_course_specifier}
+                Email={email}
+                Auth={auth}
+                ratingScore={course.course_evaluation > 0 ? course.course_evaluation : 0}
+              />
             ))}
           </div>
         )}
@@ -313,3 +376,4 @@ const CoursesPage = () => {
 };
 
 export default CoursesPage;
+

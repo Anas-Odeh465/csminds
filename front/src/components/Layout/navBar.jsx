@@ -4,8 +4,12 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import img from '../../assets/5.svg';
 import { UserAvatar, UserAvatarSmall, UserAvatar_medium }  from '../Profile/userAvat';
+import CartPreview from '../CartPreview/CartPreview';
+import { useCart } from '../../context/CourseContext/cartContext';
+
 
 const NavigationBar = () => {
+  const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [auth, setAuth] = useState(false);
@@ -14,7 +18,7 @@ const NavigationBar = () => {
   const [email, setEmail] = useState('');
   const [drop, setDrop] = useState(false);
   const [photo, setPhoto] = useState('');
-  const [instructor, setInstructor] = useState('false');
+  const [instructor, setInstructor] = useState(false);
   const navigate = useNavigate();
 
   const categories = [
@@ -23,10 +27,8 @@ const NavigationBar = () => {
     "Programming Languages",
     "Game Development",
     "IT & Software",
-    'Design',
-    'Marketing',
-    'Business',
-    'Office Productivity',
+    "Data science",
+    "Artificial intelligence",
   ];
 
   const handleCategoryClick = (category) => {
@@ -48,7 +50,14 @@ const NavigationBar = () => {
           setLastname(res1.data.LastName);
           setEmail(res1.data.Email);
           setPhoto(res1.data.photo);
-          setInstructor(res1.data.instructor);
+          const res = await axios.get('http://localhost:3307/check=instructors',{params: { email }});
+          if(res.data.instructors === 'found instructor'){
+            setInstructor(true);
+            console.log('instructor: ', res.data.instructors);
+          }else{
+            setInstructor('false');
+            console.log('No instructor found');
+          }
         } else {
           
           const res2 = await axios.get('http://localhost:3307/api/users/to');
@@ -70,25 +79,8 @@ const NavigationBar = () => {
     };
   
     fetchAuthStatus();
-  }, [auth]);
+  }, [auth, instructor]);
 
-  useEffect(() => {
-    const fetchInstructor = async () => {
-      try{
-        const res = await axios.get('http://localhost:3307/check=instructors',{params: { email }});
-        if(res.data.instructors === 'true'){
-          setInstructor('true');
-          console.log('instructor: ', res.data.instructors);
-        }else{
-          setInstructor('false');
-          console.log('No instructor found');
-        }
-      }catch(err){
-        console.error("Error fetching instructor:", err);
-      }
-    }
-    fetchInstructor();
-  }, [instructor]);
 
   // on logout
   const handleLogout = () => {
@@ -100,18 +92,27 @@ const NavigationBar = () => {
       .catch(err => console.log('Error during logout:', err));
   };
 
+  const handleInputChange = (e) => {
+    setQuery(e.target.value);
+  };
+
+  const handleKeyPress = (e) => {
+      if (e.key === 'Enter') {
+          e.preventDefault(); 
+          navigate(`/courses?search=${encodeURIComponent(query)}`);
+      }
+  };
+
   // user options after login
   const options_1 = [
     "My learning",
     "My cart",
-    "Wishlist",
     "Instructor dashboard"
   ];
 
   const options_2 = [
     "Account settings",
     "Payment methods",
-    "Purchase history"
   ];
 
   const userProfileOption = [
@@ -132,16 +133,32 @@ const NavigationBar = () => {
     if (option === firstname + " "+  lastname) {
       setDrop(false); 
       navigate('/publicProfile');
-    } else if (option === "Logout") {
+    } else if (option === "Logout"){
       handleLogout();
       setDrop(false); 
-    }else if (option === "Public profile") {
+    }else if (option === "Public profile" || option === "My learning"){
       setDrop(false); 
       navigate(`/publicProfile`);
     }
     else if (option === "Edit profile"){
       setDrop(false); 
       navigate('/editProfile');
+    }
+    else if (option === "My cart"){
+      setDrop(false); 
+      navigate('/cart');
+    }
+    else if (option === "Instructor dashboard"){
+      setDrop(false); 
+      navigate('/instructorDashboard');
+    }
+    else if (option === "Payment methods"){
+      setDrop(false); 
+      navigate(`/checkoutPage`);
+    }
+    else if (option === "Account settings"){
+      setDrop(false); 
+      navigate(`/accountSettings`);
     }
   };
 
@@ -207,26 +224,31 @@ const NavigationBar = () => {
                 <input
                   type="search"
                   placeholder="Search anything..."
+                  value={query}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyPress} 
                   className="w-full px-4 py-2 rounded-full border focus:outline-none focus:ring-2 focus:ring-gray-200"
                 />
               </div>
             </div>
 
             <div className="flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-6">
-              <a href="#" className="text-gray-600">
-                <ShoppingCart className="w-5 h-5" />
-              </a>
+              {auth ? (<CartPreview />) : (<ShoppingCart className='w-5 h-5 text-gray-600 cursor-pointer' onClick={() => navigate('/login', {state: 'login'})}/>)}
               <a href="http://localhost/AI_Chat_Page/AIminds_Chat.php" className="text-gray-600">AI Mind</a>
 
-              {instructor === 'true' ?  ( 
-                <a href='#' className="text-gray-600 cursor-pointer"> Instructor</a>
-              ) : (
-                auth ? (
-                <a href="http://localhost:5173/become-instructor" className="text-gray-600">Teach with CS Minds</a>
+              {auth && instructor ? 
+              (
+                <Link to='/instructorDashboard' className="text-gray-600 cursor-pointer">
+                  Instructor
+                </Link>
+              ) : (auth && !instructor? 
+                (
+                  <a href="http://localhost:5173/become-instructor" className="text-gray-600">Teach with CS Minds</a>
                 ) : (
-                <a className="text-gray-600 cursor-pointer" onClick={() => navigate('/login', {state: 'login'})}>Teach with CS Minds</a>
+                  <a className="text-gray-600 cursor-pointer" onClick={() => navigate('/login', {state: 'login'})}>Teach with CS Minds</a>
                 )
               )}
+            
 
               {auth ? (
                 <div className="relative">
@@ -237,7 +259,7 @@ const NavigationBar = () => {
                      {photo == 'No photo available' ? (<UserAvatar firstName={firstname} />) : 
                     ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
                       style={{ width: '30px', display: 'block',
-                      height: '30px', borderRadius: '50%' }} />) }
+                      height: '30px', borderRadius: '50%', objectFit: 'cover' }} />) }
                      
                       
                     <span style={{paddingLeft: '10px'}}>{firstname} {lastname}</span>
@@ -254,7 +276,7 @@ const NavigationBar = () => {
                         {photo == 'No photo available' ? (<UserAvatar_medium firstName={firstname} />) : 
                         ( <img src={`http://localhost:3307${photo}`} alt="Profile preview" 
                           style={{ width: '50px', display: 'block',
-                          height: '50px', borderRadius: '50%' }} />)}
+                          height: '50px', borderRadius: '50%', objectFit: 'cover'}} />)}
                           <p className="ml-1 pl-[5px]">{option}</p>
                         </div>
                         <p className="text-gray-500 text-xs mt-1 ml-[8px]">{email}</p>

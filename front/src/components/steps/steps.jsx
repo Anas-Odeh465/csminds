@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronRight, ImageIcon,ChevronLeft, BookOpen, Target, Upload, DollarSign, VideoIcon, CheckCircle } from 'lucide-react';
+import { ChevronRight, LanguagesIcon, TagIcon, TimerIcon, DiscIcon,ImageIcon,ChevronLeft, BookOpen, Target, Upload, DollarSign, VideoIcon, CheckCircle } from 'lucide-react';
+
+const Loading = () => {
+  return (
+    <div className="loading">
+      Loading Courses
+      <span className="dot dot1">.</span>
+      <span className="dot dot2">.</span>
+      <span className="dot dot3">.</span>
+    </div>
+  );
+};
 
 const CourseCreationSteps = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -13,11 +24,14 @@ const CourseCreationSteps = () => {
   const [outcomes, setOutcomes] = useState([]);
   const [newOutcome, setNewOutcome] = useState('');
   const [videos, setVideos] = useState([]);
-  const [courseFile, setCourseFile] = useState('');
+  const [language, setLanguage] = useState('');
+  // const [courseFile, setCourseFile] = useState('');
   const [videofile, setVideoFile] = useState('');
   const [price, setPrice] = useState('');
   const [auth, setAuth] = useState(false);
   const [email, setEmail] = useState('');
+  const [courseDescription, setCourseDescription] = useState('');
+  const [courseTotalTime, setCourseTotalTime] = useState('');
   const [theNewPhoto, setTheNewPhoto] = useState([]);
   const [showTempPic, setShowTempPic] = useState('');
 
@@ -59,18 +73,18 @@ const CourseCreationSteps = () => {
     'Programming Languages',
     'Game Development',
     'IT & Software',
-    'Design',
-    'Marketing',
-    'Business',
-    'Office Productivity',
+    'Data science',
+    'Artificial intelligence',
   ];
 
   const levels = [
-    { id: 'beginner', name: 'Beginner Level', description: 'No prior knowledge required' },
-    { id: 'intermediate', name: 'Intermediate Level', description: 'Basic knowledge required' },
-    { id: 'advanced', name: 'Advanced Level', description: 'Comprehensive experience needed' },
-    { id: 'all', name: 'All Levels', description: 'Content suitable for everyone' }
+    { id: 'Beginner', name: 'Beginner Level', description: 'No prior knowledge required' },
+    { id: 'Intermediate', name: 'Intermediate Level', description: 'Basic knowledge required' },
+    { id: 'Advanced', name: 'Advanced Level', description: 'Comprehensive experience needed' },
+    { id: 'All', name: 'All Levels', description: 'Content suitable for everyone' }
   ];
+
+  const Languages = ['Arabic', 'English'];
 
   const addPrerequisite = () => {
     if (newPrerequisite.trim()) {
@@ -123,12 +137,15 @@ const CourseCreationSteps = () => {
   const handelSubmitSteps = async () => {
     const formData = new FormData();
       formData.append('title', courseTitle);
+      formData.append('language', language);
       formData.append('category', selectedCategory);
       formData.append('level', selectedLevel);
       formData.append('prerequisites', prerequisites);
       formData.append('outcomes', outcomes);
       formData.append('price', price);
       formData.append('email', email);
+      formData.append('description', courseDescription);
+      formData.append('total_Time', courseTotalTime);
       formData.append('video', videofile);
       formData.append('coursePic', showTempPic);
 
@@ -138,7 +155,7 @@ const CourseCreationSteps = () => {
         .then(res => {
           if (res.data === 'course uploaded successfully') {
             alert('course uploaded successfully');
-            navigate('/become-instructor');
+            navigate('/instructorDashboard');
             console.log(res.data);
           } else {
             alert('Failed to create course: ' + res.data);
@@ -159,8 +176,6 @@ const CourseCreationSteps = () => {
       fontSize: '16px',
       cursor: 'pointer',
     };
-
-    let typo = '';
 
     if(auth){
       switch(currentStep) {
@@ -191,7 +206,10 @@ const CourseCreationSteps = () => {
         case 2:
           return (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">How about a working title?</h2>
+              <div className='flex items-center gap-2'>
+                <TagIcon className="w-5 h-5 text-blue-500"/>
+                <h2 className="text-2xl font-bold">How about a working title?</h2>
+              </div>
               <p className="text-gray-600">
                 It's ok if you can't think of a good title now. You can change it later.
               </p>
@@ -208,9 +226,75 @@ const CourseCreationSteps = () => {
                   {courseTitle.length}/60
                 </div>
               </div>
+               {/* Language input */}
+               <div className='flex items-center gap-2'>
+                <LanguagesIcon className="w-5 h-5 text-blue-500"/>
+                <h2 className="text-2xl font-bold">How about language of your course?</h2>
+              </div>
+              <p className="text-gray-600">
+                Choose your language that you will be using it through the course
+              </p>
+              <div className="flex-1">
+                <select
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                >
+                  {Languages.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           );
-        case 3:
+          case 3:
+          return (
+            <div className="space-y-4">
+              <div className='flex items-center gap-2'>
+                <DiscIcon className="w-5 h-5 text-blue-500" />
+                <h2 className="text-2xl font-bold">What about a your course description?</h2>
+              </div>
+              <p className="text-gray-600">
+                 Describe your course correctly and make it attractive to learners
+              </p>
+              <div className="relative">
+                <textarea
+                  value={courseDescription}
+                  onChange={(e) => setCourseDescription(e.target.value)}
+                  placeholder="e.g. This course makes you understand CS2 from scratch"
+                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  maxLength={200}
+                  style={{ overflow: 'hidden', height: 'auto' }}
+                  onInput={(e) => {
+                    e.target.style.height = 'auto'; 
+                    e.target.style.height = `${e.target.scrollHeight}px`; 
+                  }}
+                />
+                <div className="absolute right-1 top-1 text-sm text-gray-500">
+                  {courseDescription.length}/200
+                </div>
+              </div>
+              <div className='flex items-center gap-2'>
+                 <TimerIcon className="w-5 h-5 text-blue-500" />
+                 <h2 className="block text-2xl font-bold">Enter the full duration of the course</h2>
+              </div>
+              <p className="text-gray-600">
+                 Describe your course correctly and make it attractive to learners
+              </p>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={courseTotalTime}
+                  onChange={(e) => setCourseTotalTime(e.target.value)}
+                  placeholder="e.g. 2 Hours, 2 weeks..."
+                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          );
+        case 4:
           return (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
@@ -269,7 +353,7 @@ const CourseCreationSteps = () => {
               </div>
             </div>
           );
-        case 4:
+        case 5:
           return (
             <div className="space-y-6">
               <div className="flex items-center gap-2">
@@ -308,13 +392,13 @@ const CourseCreationSteps = () => {
                 </div>
                 {outcomes.length === 0 && (
                   <div className="text-center p-6 bg-gray-50 rounded-lg text-gray-500">
-                    Add at maximum 4 learning outcomes to help students understand what they'll learn
+                    Add at maximum 4 learning outcomes to help students what they'll learn
                   </div>
                 )}
               </div>
             </div>
           );
-          case 5:
+          case 6:
         return (
           <div className="space-y-6">
             <div className="flex items-center gap-2">
@@ -445,13 +529,14 @@ const CourseCreationSteps = () => {
     return (
       <div className="w-screen max-w-2xl mx-auto bg-white rounded-lg shadow-lg mt-40 mb-16">
         <div className="border-b px-6 py-4 flex items-center justify-between">
-          <div className="text-lg font-semibold">Step {currentStep} of 5</div>
+          <div className="text-lg font-semibold">Step {currentStep} of 6</div>
           <div className="text-sm text-gray-500">
             {currentStep === 1 && 'Select a category'}
-            {currentStep === 2 && 'Create a title'}
-            {currentStep === 3 && 'Set level & prerequisites'}
-            {currentStep === 4 && 'Define learning outcomes'}
-            {currentStep === 5 && 'Upload videos & set price'}
+            {currentStep === 2 && 'Create a title & Set your language'}
+            {currentStep === 3 && 'Write course Description & Total time'}
+            {currentStep === 4 && 'Set level & prerequisites'}
+            {currentStep === 5 && 'Define learning outcomes'}
+            {currentStep === 6 && 'Upload videos & set price'}
           </div>
         </div>
         <div className="p-6">
@@ -464,13 +549,13 @@ const CourseCreationSteps = () => {
             >
               <ChevronLeft className="w-4 h-4" />
               Previous
-            </button>
+            </button>      
             <button
-              onClick={currentStep === 5 ? (handelSubmitSteps)
-                : (() => setCurrentStep(prev => Math.min(5, prev + 1)))}
+              onClick={currentStep === 6 ? (handelSubmitSteps)
+                : (() => setCurrentStep(prev => Math.min(6, prev + 1)))}
               className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
             >
-              {currentStep === 5 ? 'Finish' : 'Continue'}
+              {currentStep === 6 ? 'Finish' : 'Continue'}
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

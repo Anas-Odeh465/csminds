@@ -55,7 +55,6 @@ const EmailVerification = () => {
         .then(res => {
           if (res.data === "Verification successful") {
               alert(res.data); 
-              alert(`it's work but keep checking`);
               navigate('/resetpass', { state: { email } });
           } else {
               alert(res.data);
@@ -71,10 +70,11 @@ const EmailVerification = () => {
             <div className="verification-header">
                 <h1 className="text-2xl font-extrabold text-white drop-shadow-md">CS Minds</h1>
                 <h2 className="text-lg font-semibold text-white mt-2">Forgot Password</h2>
+                <p className="text-sm font-semibold text-white mt-2">The code expire after 3 minutes</p>
             </div>
             
             <p className="verification-description">
-                Enter your email, then click "Send Code." Enter the 4-digit code sent to your email, then click "Verify."
+                Enter your email, then click "Send Code" Enter the 4-digit code sent to your email, then click "Verify."
             </p>
             
             <input
