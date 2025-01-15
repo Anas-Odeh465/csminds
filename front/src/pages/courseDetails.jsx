@@ -64,6 +64,11 @@ const CourseDetailsPage = () => {
   const { cart, dispatch } = useCart();
   const [auth, setAuth] = useState(false);
   const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [totalRecords, setTotalRecords] = useState(0);
+  const queryParams = new URLSearchParams(location.search);
+  const courseId = queryParams.get('idc');
 
   axios.defaults.withCredentials = true;
   useEffect(() => {
@@ -95,20 +100,24 @@ const CourseDetailsPage = () => {
   }, [auth]);
 
   useEffect(() => {
-    axios.get(`http://localhost:3307/api/getQuiz/inCouses?idc=${courseId}`)
-    .then(response => {
-      setCourseQuizzes(response.data);
-      setIsLoading(false);
-    }).catch(err =>{console.error("Error fetching quiz status:", err)});
-  });
-
-  useEffect(() => {
-    axios.get(`http://localhost:3307/api/getAssignments/inCourses?idc=${courseId}`)
+    if(courseId){
+      axios.get(`http://localhost:3307/api/getAssignments/inCourses?idc=${courseId}`)
     .then(response => {
       setCourseAssignments(response.data);
       setIsLoading(false);
     }).catch(err =>{console.error("Error fetching quiz status:", err)});
-  });
+    }
+  },[courseId]);
+
+  useEffect(() => {
+    if(courseId){
+        axios.get(`http://localhost:3307/api/getQuiz/inCouses?idc=${courseId}`)
+      .then(response => {
+        setCourseQuizzes(response.data);
+        setIsLoading(false);
+      }).catch(err =>{console.error("Error fetching quiz status:", err)});
+    }
+  },[courseId]);
   
   const handleScrollClick = () => {
     targetRef.current.scrollIntoView({
@@ -144,26 +153,23 @@ const CourseDetailsPage = () => {
     }
   }, [showVideo]);
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [totalRecords, setTotalRecords] = useState(0);
-  const queryParams = new URLSearchParams(location.search);
-  const courseId = queryParams.get('idc');
+
   
+  
+useEffect(() => {
   if(courseId){
-    useEffect(() => {
-      axios.get(`http://localhost:3307/api/courses?idc=${courseId}`)
-        .then((response) => {
-          setCourseData(response.data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching course:', error);
-          setIsLoading(false);
-        });
-    }, [courseId]);
-  }
-  
+  axios.get(`http://localhost:3307/api/courses?idc=${courseId}`)
+  .then((response) => {
+    setCourseData(response.data);
+    setIsLoading(false);
+  })
+  .catch((error) => {
+    console.error('Error fetching course:', error);
+    setIsLoading(false);
+  });
+}
+}, [courseId]);
+
 
   if (isLoading) {
     return <Loading />;
@@ -235,10 +241,12 @@ const CourseDetailsPage = () => {
   };
 
   const handleEnrollStudent = () => {
-    axios.post('http://localhost:3307/api/newStudentEnrolled', [email, courseId])
-    .then(response => { // done enrolled
-      console.log(response);
-    }).catch(err => {console.log(err)});
+    if(email && courseId){
+      axios.post('http://localhost:3307/api/newStudentEnrolled', [email, courseId])
+      .then(response => { // done enrolled
+        console.log(response);
+      }).catch(err => {console.log(err)});
+    }
   }
 
   const filteredQuizzes = Array.isArray(courseQuizzes) ? courseQuizzes : [];

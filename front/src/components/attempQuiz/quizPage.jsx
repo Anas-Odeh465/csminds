@@ -166,7 +166,7 @@ const QuizPage = () => {
     axios.get(`http://localhost:3307/api/quizzes/attemp?QIDp=${quizId}&userEmail=${email}&score=${score}`)
     .then(response => {
        if(response){
-        //navigate(`/showcoursevideo?idc=${courseID}&scoreaf=${score}`);
+        navigate(`/showcoursevideo?idc=${courseID}&scoreaf=${score}`);
        }
      })
     .catch(error => {

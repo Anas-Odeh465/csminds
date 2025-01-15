@@ -104,14 +104,16 @@ const InstructorDashboard = () => {
     }
   }, [email]);
 
+  const filterIF_ARRAY = Array.isArray(allInstructorsCources) ? allInstructorsCources : [];
+
   useEffect(() => {
-    if (allInstructorsCources && allInstructorsCources.length > 0) {
+    if (filterIF_ARRAY && filterIF_ARRAY.length > 0) {
         const fetchData = async () => {
             try {
-                const assignmentsPromises = allInstructorsCources.map(course =>
+                const assignmentsPromises = filterIF_ARRAY.map(course =>
                     axios.get(`http://localhost:3307/api/getAssignments/inCourses?idc=${course.ID_course_specifier}`)
                 );
-                const quizzesPromises = allInstructorsCources.map(course =>
+                const quizzesPromises = filterIF_ARRAY.map(course =>
                     axios.get(`http://localhost:3307/api/getQuiz/inCouses?idc=${course.ID_course_specifier}`)
                 );
 
@@ -120,12 +122,12 @@ const InstructorDashboard = () => {
 
                 const assignmentsData = {};
                 assignmentsResponses.forEach((response, index) => {
-                    assignmentsData[allInstructorsCources[index].ID_course_specifier] = response.data;
+                    assignmentsData[filterIF_ARRAY[index].ID_course_specifier] = response.data;
                 });
 
                 const quizzesData = {};
                 quizzesResponses.forEach((response, index) => {
-                    quizzesData[allInstructorsCources[index].ID_course_specifier] = response.data;
+                    quizzesData[filterIF_ARRAY[index].ID_course_specifier] = response.data;
                 });
 
                 setCourseAssignments(assignmentsData);
@@ -137,7 +139,7 @@ const InstructorDashboard = () => {
 
         fetchData();
     }
-}, [allInstructorsCources]); 
+}, [filterIF_ARRAY]); 
 
 
   const handleDeleteCourse = (courseID) => {
@@ -172,7 +174,6 @@ const InstructorDashboard = () => {
       </div>
     );
   } else {
-    const filteredCourses = Array.isArray(allInstructorsCources) ? allInstructorsCources : [];
     return (
       <div className="min-h-screen w-screen bg-gray-50 p-6 mt-[85px] mb-36">
         {/* Header */}
@@ -204,7 +205,7 @@ const InstructorDashboard = () => {
 
         <div className="grid grid-cols-1 gap-8">
           <div className="lg:col-span-2">
-            {filteredCourses.map((course, index) => (
+            {filterIF_ARRAY.map((course, index) => (
               <div
                 key={index}
                 className="bg-white rounded-lg shadow-lg p-6 mb-4 flex items-start space-x-4"

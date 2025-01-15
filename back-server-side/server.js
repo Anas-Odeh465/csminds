@@ -1726,7 +1726,10 @@ app.get('/api/quizzes/attemp', (req, res) => {
 });  
 
 app.get('/api/fetch/attempt', (req, res) => {
-    const email = req.query.email;
+    const { email } = req.query;
+    if (!email) {
+        return res.status(400).json({ error: 'Email parameter is required' });
+    }
     const check = `SELECT id FROM registerd_user WHERE email=?`;
     
     connection.query(check, [email], (err, result) => {
@@ -1738,6 +1741,7 @@ app.get('/api/fetch/attempt', (req, res) => {
         if (result.length === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
+
         const userID = result[0].id;  
         const fetchAttemptsQuery = `SELECT * FROM users_attempt_quizzes WHERE user_ID=?`;
         
@@ -1747,7 +1751,7 @@ app.get('/api/fetch/attempt', (req, res) => {
                 return res.status(500).json({ error: 'Failed to fetch attempts' });
             }
 
-            return res.json(attempts);
+            res.json(attempts);
         });
     });
 });

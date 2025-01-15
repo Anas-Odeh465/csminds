@@ -80,62 +80,88 @@ const CourseVideoPlayer = () => {
   }, [courseId]);
 
   useEffect(() => {
-    axios.get(`http://localhost:3307/api/getQuiz/inCouses?idc=${courseId}`)
-    .then(response => {
-      setCourseQuizzes(response.data);
-      setIsLoading(false);
-    }).catch(err =>{console.error("Error fetching quiz status:", err)});
-  });
-
-  useEffect(() => {
-    axios.get(`http://localhost:3307/api/getAssignments/inCourses?idc=${courseId}`)
-    .then(response => {
-      setCourseAssignments(response.data);
-      setIsLoading(false);
-    }).catch(err =>{console.error("Error fetching quiz status:", err)});
-  });
-
-  useEffect(() => {
-    if (courseData) {
-      axios.get(`http://localhost:3307/api/myinsCourses?instructorId=${courseData.user_courseID}`)
-        .then((response) => {
-          setTotalRecords(response.data[0].totalRecords);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching courses:', error);
-          setIsLoading(false);
-        });
-    }
-  }, [courseData]);
-
-  useEffect(() => {
-    if (courseId) {
-      axios.get(`http://localhost:3307/api/get-global-messages?courseId=${courseId}`)
-        .then((response) => {
-          setComments(response.data);
-          console.log('response.data: ', response.data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching comments:', error);
-          setIsLoading(false);
-        });
-    }
-  }, [courseId]);
-
-  useEffect(() => {
-      axios.get(`http://localhost:3307/api/fetch/attempt?email=${email}`)
+    if(courseId){
+        axios.get(`http://localhost:3307/api/getQuiz/inCouses?idc=${courseId}`)
       .then(response => {
-        setAttempts(response.data)
-      }).catch(error => {console.error(error);});
-  },[email]);
+        setCourseQuizzes(response.data);
+        setIsLoading(false);
+      }).catch(err =>{console.error("Error fetching quiz status:", err)});
+    }
+  },[courseId]);
+
+useEffect(() => {
+    if (courseId) {  
+        axios.get(`http://localhost:3307/api/getAssignments/inCourses?idc=${courseId}`)
+            .then(response => {
+                setCourseAssignments(response.data);
+                setIsLoading(false);
+            })
+            .catch(err => {
+                console.error("Error fetching quiz status:", err);
+                setIsLoading(false);
+            });
+    }
+}, [courseId]);
 
   useEffect(() => {
-    axios.get(`http://localhost:3307/api/fetch/attempt/assignment?email=${email}`)
+    if (courseData?.user_courseID) { 
+      const fetchData = async () => {
+        try {
+          setIsLoading(true);
+          const response = await axios.get(`http://localhost:3307/api/myinsCourses?instructorId=${courseData.user_courseID}`);
+          setTotalRecords(response.data[0]?.totalRecords || 0);
+        } catch (error) {
+          console.error('Error fetching courses:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchData();
+    }
+}, [courseData?.user_courseID]);
+
+useEffect(() => {
+  const fetchComments = async () => {
+      if (courseId) {
+          try {
+              setIsLoading(true);
+              const response = await axios.get(`http://localhost:3307/api/get-global-messages?courseId=${courseId}`);
+              setComments(response.data);
+              console.log('response.data:', response.data);
+          } catch (error) {
+              console.error('Error fetching comments:', error);
+          } finally {
+              setIsLoading(false);
+          }
+      }
+  };
+
+  fetchComments();
+}, [courseId]); 
+
+useEffect(() => {
+  if (email) {  
+      axios.get(`http://localhost:3307/api/fetch/attempt?email=${email}`)
+          .then(response => {
+              setAttempts(response.data);
+          })
+          .catch(error => {
+              console.error('Error fetching attempts:', error);
+          });
+  }
+}, [email]);
+
+  useEffect(() => {
+    if(email){
+      axios.get(`http://localhost:3307/api/fetch/attempt/assignment?email=${email}`)
     .then(response => {
       setAttemptsAssignment(response.data)
-    }).catch(error => {console.error(error);});
+    })
+    .catch(error => {
+      console.error('Error fetching attempts assignment:', error);
+    });
+    }
 },[email]);
 
   const handleAddComment = (e) => {
@@ -310,20 +336,19 @@ const CourseVideoPlayer = () => {
     <div className="space-y-4 bg-white mb-10">
         <h2 className="text-2xl font-bold mt-10 ml-5 mb-6">Course include Short assignment:</h2>
         {filteredAssignment.map((assignment, index) => {
-            // Check if the quiz was attempted
             const isAttempted = assignmentAttempts.some((attempt) => Number(attempt.assignment_id) === Number(assignment.assignment_id));
             const submittedAssignment = assignmentAttempts.find((attempt) => Number(attempt.assignment_id) === Number(assignment.assignment_id));
+            const isTimeExpired = new Date(assignment.submission_time) < new Date();
 
             return (
                 <div
-                    onClick={() => !isAttempted && navigate(`/studentPageAssignment?aiud=${assignment.assignment_id}&idc=${courseId}`)}
+                    onClick={() => !isAttempted && !isTimeExpired && navigate(`/studentPageAssignment?aiud=${assignment.assignment_id}&idc=${courseId}`)}
                     key={index}
                     className={`bg-white ml-10 w-2/3 rounded-lg border hover:border-gray-500 hover:shadow-lg cursor-pointer 
-                        ${isAttempted ? 'cursor-not-allowed opacity-50' : ''}`}
+                        ${(isAttempted || isTimeExpired) ? 'cursor-not-allowed opacity-50' : ''}`}
                 >
                     <div className="p-4">
                         <div className="flex items-center justify-between">
-                            {/* Quiz Title and Description */}
                             <div className="flex items-center gap-4">
                                 <div className="flex flex-col">
                                     <div className='flex flex-row gap-3'>
@@ -333,24 +358,23 @@ const CourseVideoPlayer = () => {
                                     <p className="text-gray-600 text-sm">{assignment.description}</p>
                                 </div>
                             </div>
-                            {isAttempted ? (
+                            {isAttempted || isTimeExpired ? (
                                 <div className="flex flex-row gap-5">
-                                    <p className="text-gray-600 text-md">Submission state: {'   '+ '  ' + submittedAssignment.state_assignment	}</p>
+                                    <p className="text-gray-600 text-md">
+                                        {isTimeExpired 
+                                            ? "Assignment is closed (Time expired)" 
+                                            : `Submission state: ${submittedAssignment.state_assignment}`}
+                                    </p>
                                     <CheckIcon className="w-5 h-5 text-green-500 flex-shrink-0 mt-1" />
                                 </div>
                             ) : (
-                              <div className="flex items-center gap-4">
-                                <span className="text-gray-500">
-                                      {new Date(assignment.submission_time) < new Date() ? (
-                                          <span className="text-red-500">Assignment is overdue!</span>
-                                      ) : (
-                                          `Assignment limited time: ${new Date(assignment.submission_time).toLocaleDateString()}`
-                                      )}
-                                  </span>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-gray-500">
+                                        {`Assignment limited time: ${new Date(assignment.submission_time).toLocaleDateString()}`}
+                                    </span>
                                     <TimerIcon className="w-5 h-5 text-gray-400" />
-                              </div>
+                                </div>
                             )}
-                            
                         </div>
                     </div>
                 </div>
